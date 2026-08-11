@@ -120,7 +120,7 @@ export const LandingPortal: React.FC = () => {
                   const elem = document.getElementById('doctors-section');
                   if (elem) elem.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="bg-red-600 hover:bg-red-700 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm"
+                className="bg-red-600 hover:bg-red-700 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm cursor-pointer"
               >
                 <Stethoscope className="w-5 h-5" />
                 <span>{t('consultDoctors')}</span>
@@ -181,34 +181,34 @@ export const LandingPortal: React.FC = () => {
             const elem = document.getElementById('doctors-section');
             if (elem) elem.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="relative h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 hover:border-blue-500/80 transition-all duration-300 text-left group border border-slate-200 bg-slate-950 cursor-pointer"
+          className="relative h-56 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border border-slate-200/80 bg-white cursor-pointer flex flex-col"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0">
+          {/* Natural Photo Header */}
+          <div className="relative h-28 w-full overflow-hidden shrink-0">
             <img 
               src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80" 
               alt={t('bookAppointment')}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-[0.3] group-hover:brightness-[0.35]"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               referrerPolicy="no-referrer"
             />
-            {/* Gradient Overlay for Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent" />
           </div>
           
-          {/* Floating Icon Badge top right */}
-          <div className="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl bg-blue-500/10 backdrop-blur-md border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-            <Calendar className="w-4 h-4" />
-          </div>
+          {/* Card Body with Overlapping Badge */}
+          <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
+            {/* Floating Icon Badge */}
+            <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-blue-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+              <Calendar className="w-4.5 h-4.5" />
+            </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full p-5 flex flex-col justify-end">
-            <span className="text-[9px] uppercase font-black tracking-wider text-blue-400 mb-1 group-hover:text-blue-300 transition-colors">
-              Schedule & Meet
-            </span>
-            <h3 className="font-black text-sm sm:text-base text-white tracking-tight drop-shadow-sm group-hover:text-white transition-colors">
-              {t('bookAppointment')}
-            </h3>
-            <p className="text-[11px] sm:text-xs text-slate-300 font-medium mt-1 leading-snug drop-shadow-xs">
+            <div>
+              <span className="text-[9px] uppercase font-extrabold tracking-wider text-blue-600 block mb-1">
+                Schedule & Meet
+              </span>
+              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-blue-600 transition-colors">
+                {t('bookAppointment')}
+              </h3>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               Video Call or Clinic Visit
             </p>
           </div>
@@ -220,34 +220,34 @@ export const LandingPortal: React.FC = () => {
             const elem = document.getElementById('prescription-analyzer-section');
             if (elem) elem.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="relative h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 hover:border-red-500/80 transition-all duration-300 text-left group border border-slate-200 bg-slate-950 cursor-pointer"
+          className="relative h-56 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border border-slate-200/80 bg-white cursor-pointer flex flex-col"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0">
+          {/* Natural Photo Header */}
+          <div className="relative h-28 w-full overflow-hidden shrink-0">
             <img 
               src="https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=600&q=80" 
               alt={t('prescriptionAnalyzer')}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-[0.3] group-hover:brightness-[0.35]"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               referrerPolicy="no-referrer"
             />
-            {/* Gradient Overlay for Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent" />
           </div>
           
-          {/* Floating Icon Badge top right */}
-          <div className="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl bg-red-500/10 backdrop-blur-md border border-red-500/30 flex items-center justify-center text-red-400 group-hover:bg-red-600 group-hover:text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-            <Sparkles className="w-4 h-4" />
-          </div>
+          {/* Card Body with Overlapping Badge */}
+          <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
+            {/* Floating Icon Badge */}
+            <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-red-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+              <Sparkles className="w-4.5 h-4.5" />
+            </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full p-5 flex flex-col justify-end">
-            <span className="text-[9px] uppercase font-black tracking-wider text-red-400 mb-1 group-hover:text-red-300 transition-colors">
-              Clinical Intelligence
-            </span>
-            <h3 className="font-black text-sm sm:text-base text-white tracking-tight drop-shadow-sm group-hover:text-white transition-colors">
-              {t('prescriptionAnalyzer')}
-            </h3>
-            <p className="text-[11px] sm:text-xs text-slate-300 font-medium mt-1 leading-snug drop-shadow-xs">
+            <div>
+              <span className="text-[9px] uppercase font-extrabold tracking-wider text-red-600 block mb-1">
+                Clinical Intelligence
+              </span>
+              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-red-600 transition-colors">
+                {t('prescriptionAnalyzer')}
+              </h3>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               AI record & PDF scanner
             </p>
           </div>
@@ -256,34 +256,34 @@ export const LandingPortal: React.FC = () => {
         <button
           id="quick-action-sample"
           onClick={() => setIsSampleModalOpen(true)}
-          className="relative h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 hover:border-emerald-500/80 transition-all duration-300 text-left group border border-slate-200 bg-slate-950 cursor-pointer"
+          className="relative h-56 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border border-slate-200/80 bg-white cursor-pointer flex flex-col"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0">
+          {/* Natural Photo Header */}
+          <div className="relative h-28 w-full overflow-hidden shrink-0">
             <img 
               src="https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?auto=format&fit=crop&w=600&q=80" 
               alt={t('homeSample')}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-[0.3] group-hover:brightness-[0.35]"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               referrerPolicy="no-referrer"
             />
-            {/* Gradient Overlay for Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent" />
           </div>
           
-          {/* Floating Icon Badge top right */}
-          <div className="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl bg-emerald-500/10 backdrop-blur-md border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-            <TestTube2 className="w-4 h-4" />
-          </div>
+          {/* Card Body with Overlapping Badge */}
+          <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
+            {/* Floating Icon Badge */}
+            <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-emerald-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+              <TestTube2 className="w-4.5 h-4.5" />
+            </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full p-5 flex flex-col justify-end">
-            <span className="text-[9px] uppercase font-black tracking-wider text-emerald-400 mb-1 group-hover:text-emerald-300 transition-colors">
-              Diagnostics
-            </span>
-            <h3 className="font-black text-sm sm:text-base text-white tracking-tight drop-shadow-sm group-hover:text-white transition-colors">
-              {t('homeSample')}
-            </h3>
-            <p className="text-[11px] sm:text-xs text-slate-300 font-medium mt-1 leading-snug drop-shadow-xs">
+            <div>
+              <span className="text-[9px] uppercase font-extrabold tracking-wider text-emerald-600 block mb-1">
+                Diagnostics
+              </span>
+              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-emerald-600 transition-colors">
+                {t('homeSample')}
+              </h3>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               Doorstep phlebotomist
             </p>
           </div>
@@ -292,34 +292,34 @@ export const LandingPortal: React.FC = () => {
         <button
           id="quick-action-pharmacy"
           onClick={() => setPortal('pharmacy')}
-          className="relative h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 hover:border-amber-500/80 transition-all duration-300 text-left group border border-slate-200 bg-slate-950 cursor-pointer"
+          className="relative h-56 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border border-slate-200/80 bg-white cursor-pointer flex flex-col"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0">
+          {/* Natural Photo Header */}
+          <div className="relative h-28 w-full overflow-hidden shrink-0">
             <img 
               src="https://images.unsplash.com/photo-1586015555751-63bb77f4322a?auto=format&fit=crop&w=600&q=80" 
               alt={t('orderMedicines')}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-[0.3] group-hover:brightness-[0.35]"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               referrerPolicy="no-referrer"
             />
-            {/* Gradient Overlay for Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent" />
           </div>
           
-          {/* Floating Icon Badge top right */}
-          <div className="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl bg-amber-500/10 backdrop-blur-md border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:bg-amber-600 group-hover:text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-            <Pill className="w-4 h-4" />
-          </div>
+          {/* Card Body with Overlapping Badge */}
+          <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
+            {/* Floating Icon Badge */}
+            <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-amber-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+              <Pill className="w-4.5 h-4.5" />
+            </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full p-5 flex flex-col justify-end">
-            <span className="text-[9px] uppercase font-black tracking-wider text-amber-400 mb-1 group-hover:text-amber-300 transition-colors">
-              E-Pharmacy
-            </span>
-            <h3 className="font-black text-sm sm:text-base text-white tracking-tight drop-shadow-sm group-hover:text-white transition-colors">
-              {t('orderMedicines')}
-            </h3>
-            <p className="text-[11px] sm:text-xs text-slate-300 font-medium mt-1 leading-snug drop-shadow-xs">
+            <div>
+              <span className="text-[9px] uppercase font-extrabold tracking-wider text-amber-600 block mb-1">
+                E-Pharmacy
+              </span>
+              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-amber-600 transition-colors">
+                {t('orderMedicines')}
+              </h3>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               From admin stores
             </p>
           </div>
