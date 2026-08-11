@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { VideoCallModal } from '../components/VideoCallModal';
 import { PhotoUpload } from '../components/PhotoUpload';
 import { Appointment } from '../types';
+import { DoctorAnalytics } from '../components/DoctorAnalytics';
 import { 
   Stethoscope, 
   Video, 
@@ -210,6 +211,13 @@ export const DoctorPortal: React.FC = () => {
       setPasswordSuccess('');
     }, 3000);
   };
+
+  // Filter all appointments for currently logged in doctor (regardless of active mode filter)
+  const allDoctorAppointments = appointments.filter(a => {
+    if (!currentDoctor) return false;
+    return a.doctorId === currentDoctor.id || 
+      a.doctorName.toLowerCase().includes(currentDoctor.name.toLowerCase().replace('dr. ', ''));
+  });
 
   // Filter appointments for currently logged in doctor
   const doctorAppointments = appointments.filter(a => {
@@ -728,6 +736,14 @@ export const DoctorPortal: React.FC = () => {
             </div>
           </form>
         </div>
+      )}
+
+      {/* Analytics & Schedule Insights */}
+      {currentDoctor && (
+        <DoctorAnalytics 
+          appointments={allDoctorAppointments} 
+          doctorAvailabilityCount={currentDoctor.availability ? currentDoctor.availability.length : 4} 
+        />
       )}
 
       {/* Mode Filter Bar */}

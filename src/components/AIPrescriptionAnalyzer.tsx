@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { PrescriptionAnalysis } from '../types';
 import { samplePrescriptionTexts } from '../data/initialData';
+import { jsPDF } from 'jspdf';
+import { 
+  checkDrugInteractions, 
+  normalizeDrugName, 
+  DetectedInteraction 
+} from '../utils/drugInteractions';
 import { 
   Sparkles, 
   Upload, 
@@ -13,7 +19,13 @@ import {
   Download, 
   RefreshCw,
   HelpCircle,
-  Apple
+  Apple,
+  FileDown,
+  ShieldCheck,
+  ShieldAlert,
+  Plus,
+  X,
+  AlertOctagon
 } from 'lucide-react';
 
 export const AIPrescriptionAnalyzer: React.FC = () => {
@@ -22,8 +34,24 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
   const [textInput, setTextInput] = useState('');
   const [selectedFile, setSelectedFile] = useState<{ name: string; base64: string; mimeType: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<PrescriptionAnalysis | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Ongoing medications for automated drug interaction checker
+  const [ongoingMeds, setOngoingMeds] = useState<string[]>(['Ibuprofen']);
+  const [newOngoingMed, setNewOngoingMed] = useState('');
+
+  const handleAddOngoingMed = (medName: string) => {
+    const trimmed = medName.trim();
+    if (!trimmed) return;
+    if (ongoingMeds.some(m => m.toLowerCase() === trimmed.toLowerCase())) return;
+    setOngoingMeds([...ongoingMeds, trimmed]);
+  };
+
+  const handleRemoveOngoingMed = (index: number) => {
+    setOngoingMeds(ongoingMeds.filter((_, i) => i !== index));
+  };
 
   // File Upload Handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +139,382 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!analysisResult) return;
+    setDownloading(true);
+
+    try {
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Palette
+      const navy = [26, 54, 93];       // #1A365D - Slate/Blue Primary
+      const indigo = [79, 70, 229];    // #4F46E5 - Brand Indigo
+      const textDark = [30, 41, 59];   // #1E293B - Slate 800
+      const textMuted = [100, 116, 139]; // #64748B - Slate 500
+      const green = [5, 150, 105];     // #059669 - Emerald
+      const red = [220, 38, 38];       // #DC2626 - Red Warning
+      const amber = [217, 119, 6];     // #D97706 - Amber Warning/Doctor Qs
+
+      let currentY = 15;
+
+      // Helper to check and add new page if needed
+      const checkPageBreak = (neededHeight: number) => {
+        if (currentY + neededHeight > 280) {
+          doc.addPage();
+          currentY = 15;
+          return true;
+        }
+        return false;
+      };
+
+      // Header: App Branding
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(navy[0], navy[1], navy[2]);
+      doc.text('AiLynkX Clinical Portal', 15, currentY);
+
+      currentY += 6;
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
+      doc.text('AI-Powered Prescription Analysis & Safety Report', 15, currentY);
+
+      // Divider Line
+      currentY += 4;
+      doc.setDrawColor(226, 232, 240); // Slate 200
+      doc.setLineWidth(0.5);
+      doc.line(15, currentY, 195, currentY);
+
+      // Metadata Row
+      currentY += 8;
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+      doc.text('Report Generated:', 15, currentY);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(new Date().toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      }), 48, currentY);
+
+      // Clinical Note block
+      if (analysisResult.diagnosisNote) {
+        currentY += 10;
+        const noteLines = doc.splitTextToSize(analysisResult.diagnosisNote, 168);
+        const noteHeight = noteLines.length * 5 + 14; // padding & title
+        
+        checkPageBreak(noteHeight);
+
+        // Render filled container
+        doc.setFillColor(240, 246, 255); // Blue 50
+        doc.rect(15, currentY, 180, noteHeight - 4, 'F');
+        doc.setDrawColor(191, 219, 254); // Blue 200
+        doc.rect(15, currentY, 180, noteHeight - 4, 'S');
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(30, 58, 138); // Blue 900
+        doc.text('CLINICAL NOTE / IMPRESSION:', 20, currentY + 6);
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9.5);
+        doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+        doc.text(noteLines, 20, currentY + 12);
+
+        currentY += noteHeight;
+      }
+
+      // Medications Section
+      currentY += 8;
+      checkPageBreak(30);
+
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(indigo[0], indigo[1], indigo[2]);
+      doc.text('Identified Medications & Dosages', 15, currentY);
+
+      // Table Header row background
+      currentY += 4;
+      doc.setFillColor(248, 250, 252); // Slate 50
+      doc.rect(15, currentY, 180, 8, 'F');
+      
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184); // Slate 400
+      doc.text('Medication Name', 18, currentY + 5.5);
+      doc.text('Clinical Purpose', 75, currentY + 5.5);
+      doc.text('Dosage & Frequency', 125, currentY + 5.5);
+      doc.text('Duration', 170, currentY + 5.5);
+
+      currentY += 8;
+
+      if (analysisResult.medications && analysisResult.medications.length > 0) {
+        analysisResult.medications.forEach((med) => {
+          const nameLines = doc.splitTextToSize(med.name || 'Unknown', 52);
+          const purposeLines = doc.splitTextToSize(med.purpose || 'Not Specified', 45);
+          const dosageLines = doc.splitTextToSize(med.dosage || 'As directed', 42);
+          const durationLines = doc.splitTextToSize(med.duration || 'N/A', 22);
+
+          const maxLinesCount = Math.max(nameLines.length, purposeLines.length, dosageLines.length, durationLines.length);
+          const rowHeight = maxLinesCount * 5 + 6;
+
+          checkPageBreak(rowHeight);
+
+          // Draw row bottom line
+          doc.setDrawColor(241, 245, 249); // Slate 100
+          doc.setLineWidth(0.3);
+          doc.line(15, currentY + rowHeight - 2, 195, currentY + rowHeight - 2);
+
+          doc.setFont('Helvetica', 'bold');
+          doc.setFontSize(9.5);
+          doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+          doc.text(nameLines, 18, currentY + 4.5);
+
+          doc.setFont('Helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.text(purposeLines, 75, currentY + 4.5);
+          doc.text(dosageLines, 125, currentY + 4.5);
+          doc.text(durationLines, 170, currentY + 4.5);
+
+          currentY += rowHeight;
+        });
+      } else {
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
+        doc.text('No medications identified.', 18, currentY + 5);
+        currentY += 10;
+      }
+
+      // Automated Drug-Drug Interaction Check Section in PDF
+      if (analysisResult.medications && analysisResult.medications.length > 0) {
+        const checkList = [
+          ...analysisResult.medications.map(m => ({ name: m.name })),
+          ...ongoingMeds.map(m => ({ name: m }))
+        ];
+
+        const interactions = checkDrugInteractions(checkList);
+
+        currentY += 8;
+        checkPageBreak(30);
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(12);
+
+        if (interactions.length > 0) {
+          doc.setTextColor(red[0], red[1], red[2]);
+          doc.text('Automated Drug-Drug Interaction Safety Alert', 15, currentY);
+          currentY += 5;
+
+          interactions.forEach((det) => {
+            const heading = `${det.matchedDrug1} + ${det.matchedDrug2} (${det.interaction.severity.toUpperCase()} RISK)`;
+            const headingLines = doc.splitTextToSize(heading, 172);
+            const riskLines = doc.splitTextToSize(`• Risk: ${det.interaction.risk}`, 168);
+            const mechLines = doc.splitTextToSize(`• Mechanism: ${det.interaction.mechanism}`, 168);
+            const advLines = doc.splitTextToSize(`• Clinical Advice: ${det.interaction.advice}`, 168);
+
+            const totalBlockHeight = (headingLines.length + riskLines.length + mechLines.length + advLines.length) * 4.5 + 11;
+            checkPageBreak(totalBlockHeight);
+
+            // Container box with thin border
+            doc.setFillColor(254, 242, 242); // Light red background for safety alerts
+            doc.rect(15, currentY, 180, totalBlockHeight - 4, 'F');
+            doc.setDrawColor(254, 202, 202);
+            doc.rect(15, currentY, 180, totalBlockHeight - 4, 'S');
+
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(153, 27, 27); // Dark Red
+            doc.text(headingLines, 20, currentY + 5);
+
+            let blockY = currentY + 5 + headingLines.length * 4.5;
+
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(8.5);
+            doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+            doc.text(riskLines, 22, blockY);
+            blockY += riskLines.length * 4.5;
+
+            doc.text(mechLines, 22, blockY);
+            blockY += mechLines.length * 4.5;
+
+            doc.setFont('Helvetica', 'bold');
+            doc.setTextColor(153, 27, 27);
+            doc.text(advLines, 22, blockY);
+
+            currentY += totalBlockHeight;
+          });
+        } else {
+          doc.setTextColor(green[0], green[1], green[2]);
+          doc.text('Automated Drug-Drug Interaction Check', 15, currentY);
+          currentY += 5;
+
+          const greenBoxHeight = 15;
+          checkPageBreak(greenBoxHeight);
+
+          doc.setFillColor(240, 253, 250); // Light emerald green background
+          doc.rect(15, currentY, 180, greenBoxHeight - 4, 'F');
+          doc.setDrawColor(204, 251, 241);
+          doc.rect(15, currentY, 180, greenBoxHeight - 4, 'S');
+
+          doc.setFont('Helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.setTextColor(15, 118, 110); // Teal
+          doc.text('✓ Safety Screen Cleared:', 20, currentY + 6);
+          doc.setFont('Helvetica', 'normal');
+          doc.text('No known dangerous drug-drug interactions detected between prescribed and active ongoing medications.', 58, currentY + 6);
+
+          currentY += greenBoxHeight;
+        }
+      }
+
+      // Patient Guidelines & Instructions Section
+      if (analysisResult.instructions && analysisResult.instructions.length > 0) {
+        currentY += 8;
+        checkPageBreak(25);
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(indigo[0], indigo[1], indigo[2]);
+        doc.text('Patient Guidelines & Usage Instructions', 15, currentY);
+
+        currentY += 5;
+
+        analysisResult.instructions.forEach((inst) => {
+          const lines = doc.splitTextToSize(`•  ${inst}`, 172);
+          const linesHeight = lines.length * 5 + 2;
+          
+          checkPageBreak(linesHeight);
+
+          doc.setFont('Helvetica', 'normal');
+          doc.setFontSize(9.5);
+          doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+          doc.text(lines, 18, currentY + 4);
+
+          currentY += linesHeight;
+        });
+      }
+
+      // Warnings & Safety Information Section
+      if (analysisResult.warnings && analysisResult.warnings.length > 0) {
+        currentY += 8;
+        checkPageBreak(25);
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(red[0], red[1], red[2]);
+        doc.text('Warnings & Safety Information', 15, currentY);
+
+        currentY += 5;
+
+        analysisResult.warnings.forEach((warn, idx) => {
+          const lines = doc.splitTextToSize(`${idx + 1}.  ${warn}`, 172);
+          const linesHeight = lines.length * 5 + 2;
+
+          checkPageBreak(linesHeight);
+
+          doc.setFont('Helvetica', 'bold');
+          doc.setFontSize(9.5);
+          doc.setTextColor(153, 27, 27); // Deep Red
+          doc.text(lines, 18, currentY + 4);
+
+          currentY += linesHeight;
+        });
+      }
+
+      // Dietary & Lifestyle Advice Section
+      if (analysisResult.dietaryAdvice) {
+        currentY += 8;
+        checkPageBreak(25);
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(green[0], green[1], green[2]);
+        doc.text('Dietary & Lifestyle Advice', 15, currentY);
+
+        currentY += 5;
+        const lines = doc.splitTextToSize(analysisResult.dietaryAdvice, 172);
+        const linesHeight = lines.length * 5 + 2;
+
+        checkPageBreak(linesHeight);
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9.5);
+        doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+        doc.text(lines, 18, currentY + 4);
+
+        currentY += linesHeight;
+      }
+
+      // Suggested Questions for Doctor Section
+      if (analysisResult.questionsForDoctor && analysisResult.questionsForDoctor.length > 0) {
+        currentY += 8;
+        checkPageBreak(25);
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(amber[0], amber[1], amber[2]);
+        doc.text('Suggested Questions for your Doctor', 15, currentY);
+
+        currentY += 5;
+
+        analysisResult.questionsForDoctor.forEach((q) => {
+          const lines = doc.splitTextToSize(`?  ${q}`, 172);
+          const linesHeight = lines.length * 5 + 2;
+
+          checkPageBreak(linesHeight);
+
+          doc.setFont('Helvetica', 'normal');
+          doc.setFontSize(9.5);
+          doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+          doc.text(lines, 18, currentY + 4);
+
+          currentY += linesHeight;
+        });
+      }
+
+      // Footer disclaimer block
+      currentY += 12;
+      const disclaimerText = 'Disclaimer: This clinical analysis is generated automatically by safe AI services and is intended for user convenience, wellness tracking, and educational assistance. It is NOT a substitute for professional clinical medical advice, diagnostics, or treatment. Always consult your prescribing physician, care team, or certified pharmacist before modifying or starting any therapy or medication schedule.';
+      const disclaimerLines = doc.splitTextToSize(disclaimerText, 175);
+      const disclaimerHeight = disclaimerLines.length * 4.5 + 4;
+
+      checkPageBreak(disclaimerHeight);
+
+      doc.setDrawColor(226, 232, 240); // Slate 200
+      doc.setLineWidth(0.5);
+      doc.line(15, currentY, 195, currentY);
+
+      currentY += 6;
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
+      doc.text(disclaimerLines, 15, currentY);
+
+      // Save PDF
+      doc.save(`Clinical_Analysis_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      
+      addNotification({
+        title: 'Report Downloaded',
+        message: 'Your structured clinical report has been generated and saved as a PDF.',
+        type: 'success',
+        targetPortal: 'patient'
+      });
+    } catch (err: any) {
+      console.error('PDF generation error:', err);
+      addNotification({
+        title: 'Export Failed',
+        message: 'Unable to build PDF document. ' + err.message,
+        type: 'error',
+        targetPortal: 'patient'
+      });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -383,13 +787,24 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
                       )}
                     </div>
 
-                    <button
-                      onClick={() => window.print()}
-                      className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-white border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors shrink-0"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Print / Save
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={handleDownloadPDF}
+                        disabled={downloading}
+                        className="flex items-center gap-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <FileDown className={`w-3.5 h-3.5 ${downloading ? 'animate-bounce' : ''}`} />
+                        {downloading ? 'Downloading...' : 'Download Report'}
+                      </button>
+
+                      <button
+                        onClick={() => window.print()}
+                        className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-white border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Print / Save
+                      </button>
+                    </div>
                   </div>
 
                   {/* Identified Medications & Dosages - Structured list row format */}
@@ -454,6 +869,213 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
                           </div>
                         )}
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Automated Drug-Drug Interaction Checker */}
+                  <div className="space-y-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                          <ShieldAlert className="w-5 h-5 text-indigo-600 shrink-0" />
+                          Automated Drug Interaction Checker
+                        </h4>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Cross-references prescribed drugs against each other and your active ongoing treatments.
+                        </p>
+                      </div>
+                      <span className="text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
+                        Safety Engine v3.2
+                      </span>
+                    </div>
+
+                    {/* Ongoing Medications Management */}
+                    <div className="space-y-3 pt-1">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Add Your Ongoing / Active Medications:
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            placeholder="Type a medication name (e.g. Warfarin, Simvastatin, Viagra...)"
+                            value={newOngoingMed}
+                            onChange={(e) => setNewOngoingMed(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleAddOngoingMed(newOngoingMed);
+                                setNewOngoingMed('');
+                              }
+                            }}
+                            className="w-full text-xs bg-slate-50 border border-slate-200 focus:border-indigo-500 rounded-xl px-3 py-2.5 outline-hidden transition-colors"
+                          />
+                        </div>
+                        <button
+                          onClick={() => {
+                            handleAddOngoingMed(newOngoingMed);
+                            setNewOngoingMed('');
+                          }}
+                          className="px-4 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-slate-800 transition-colors flex items-center gap-1 shrink-0 cursor-pointer animate-in fade-in"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add
+                        </button>
+                      </div>
+
+                      {/* Current Ongoing Medications list as chips */}
+                      {ongoingMeds.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase mr-1 self-center">Active:</span>
+                          {ongoingMeds.map((med, idx) => (
+                            <span 
+                              key={idx}
+                              className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-colors"
+                            >
+                              <Pill className="w-3 h-3 text-slate-500" />
+                              {med}
+                              <button 
+                                onClick={() => handleRemoveOngoingMed(idx)}
+                                className="text-slate-400 hover:text-red-500 ml-1 cursor-pointer focus:outline-hidden"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 italic">No other active medications listed. Use suggestions below to test the safety scan.</p>
+                      )}
+
+                      {/* Quick Suggestions for Testing */}
+                      <div className="space-y-1.5 pt-1 border-t border-slate-100">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          Quick-Add Suggestions to Test Interactions:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            { name: 'Warfarin', effect: 'Bleeding Risk' },
+                            { name: 'Simvastatin', effect: 'Statin Toxicity' },
+                            { name: 'Sildenafil (Viagra)', effect: 'Nitrate Drop' },
+                            { name: 'Potassium', effect: 'Hyperkalemia' },
+                            { name: 'Metronidazole', effect: 'Alcohol Reaction' },
+                            { name: 'Digoxin', effect: 'Heart Rate' }
+                          ].map((suggest) => {
+                            const isAdded = ongoingMeds.some(m => m.toLowerCase() === suggest.name.toLowerCase());
+                            return (
+                              <button
+                                key={suggest.name}
+                                onClick={() => {
+                                  if (!isAdded) handleAddOngoingMed(suggest.name);
+                                }}
+                                disabled={isAdded}
+                                className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition-all cursor-pointer ${
+                                  isAdded 
+                                    ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
+                                    : 'bg-indigo-50/60 text-indigo-700 border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200'
+                                }`}
+                              >
+                                + {suggest.name} <span className="opacity-60 font-normal">({suggest.effect})</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Scan Output Results */}
+                    <div className="pt-3 border-t border-slate-100">
+                      {(() => {
+                        const internalInteractions = checkDrugInteractions(analysisResult.medications);
+                        const crossInteractions = checkDrugInteractions(
+                          analysisResult.medications, 
+                          ongoingMeds.map(m => ({ name: m }))
+                        );
+                        const allInteractions = [...internalInteractions, ...crossInteractions];
+
+                        if (allInteractions.length === 0) {
+                          return (
+                            <div className="flex items-start gap-3 bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4">
+                              <div className="w-9 h-9 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center shrink-0 border border-emerald-200">
+                                <ShieldCheck className="w-5 h-5 animate-pulse" />
+                              </div>
+                              <div className="space-y-0.5">
+                                <h5 className="font-extrabold text-xs text-emerald-950 uppercase tracking-wide">
+                                  Safety Screen Cleared
+                                </h5>
+                                <p className="text-xs text-emerald-800 leading-relaxed">
+                                  No known harmful drug-drug interactions detected between your prescribed medications and listed ongoing therapies. Always check with your pharmacist when picking up new prescriptions.
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-900 rounded-xl px-3.5 py-2">
+                              <AlertOctagon className="w-4.5 h-4.5 text-red-600 shrink-0" />
+                              <span className="text-xs font-extrabold">
+                                {allInteractions.length} Medication Interaction {allInteractions.length === 1 ? 'Alert' : 'Alerts'} Detected:
+                              </span>
+                            </div>
+
+                            <div className="space-y-2.5">
+                              {allInteractions.map((det, i) => {
+                                const sev = det.interaction.severity;
+                                const isCritical = sev === 'critical';
+                                const isHigh = sev === 'high';
+                                
+                                const severityColors = isCritical 
+                                  ? 'bg-red-50/70 border-red-200 text-red-950' 
+                                  : isHigh 
+                                    ? 'bg-amber-50/70 border-amber-200 text-amber-950'
+                                    : 'bg-yellow-50/70 border-yellow-200 text-yellow-950';
+
+                                const severityBadge = isCritical 
+                                  ? 'bg-red-600 text-white' 
+                                  : isHigh 
+                                    ? 'bg-amber-600 text-white'
+                                    : 'bg-yellow-500 text-white';
+
+                                return (
+                                  <div key={i} className={`border rounded-xl p-3.5 space-y-2 ${severityColors}`}>
+                                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                                      <span className="font-extrabold text-xs uppercase tracking-wide flex items-center gap-1.5">
+                                        <span className={`w-2 h-2 rounded-full ${isCritical ? 'bg-red-600 animate-pulse' : isHigh ? 'bg-amber-600' : 'bg-yellow-500'}`} />
+                                        {det.matchedDrug1} <span className="opacity-50">+</span> {det.matchedDrug2}
+                                      </span>
+                                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${severityBadge}`}>
+                                        {sev} hazard
+                                      </span>
+                                    </div>
+
+                                    <div className="space-y-1.5 text-xs">
+                                      <p className="leading-relaxed font-bold text-slate-900">
+                                        <span className="text-[10px] font-black uppercase text-slate-400 block tracking-widest mb-0.5">Primary Threat:</span>
+                                        {det.interaction.risk}
+                                      </p>
+                                      <p className="leading-relaxed text-slate-600">
+                                        <span className="text-[10px] font-black uppercase text-slate-400 block tracking-widest mb-0.5">Clinical Mechanism:</span>
+                                        {det.interaction.mechanism}
+                                      </p>
+                                      <div className={`p-2.5 rounded-lg border text-xs font-semibold leading-relaxed mt-1 ${
+                                        isCritical 
+                                          ? 'bg-red-100/50 border-red-200 text-red-900' 
+                                          : isHigh 
+                                            ? 'bg-amber-100/50 border-amber-200 text-amber-900'
+                                            : 'bg-yellow-100/50 border-yellow-200 text-yellow-900'
+                                      }`}>
+                                        <span className="font-black uppercase text-[9px] block mb-0.5">Clinical Precautionary Advice:</span>
+                                        {det.interaction.advice}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 
