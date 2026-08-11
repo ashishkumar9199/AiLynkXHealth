@@ -203,16 +203,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   
-  const [uploadedDocs, setUploadedDocs] = useState<UploadedMedicalDoc[]>([
-    {
-      id: 'doc-init-1',
-      name: 'Blood_Panel_Lab_Report.pdf',
-      fileType: 'lab_report',
-      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      uploadDate: '2026-07-20',
-      size: '1.2 MB'
-    }
-  ]);
+  const [uploadedDocs, setUploadedDocs] = useState<UploadedMedicalDoc[]>([]);
 
   const [isPortalDrawerOpen, setIsPortalDrawerOpen] = useState(false);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
