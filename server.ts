@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 
@@ -21,7 +21,14 @@ async function startServer() {
   const apiKey = process.env.GEMINI_API_KEY;
   let aiClient: GoogleGenAI | null = null;
   if (apiKey) {
-    aiClient = new GoogleGenAI({ apiKey });
+    aiClient = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
 
   // API Health Endpoint
@@ -101,27 +108,71 @@ Format your output STRICTLY as raw valid JSON without markdown code block format
 
       const response = await aiClient.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: contents
+        contents: contents,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              diagnosisNote: { 
+                type: Type.STRING,
+                description: 'Brief clinical impression or summary of what this prescription is treating.'
+              },
+              medications: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    name: { type: Type.STRING },
+                    dosage: { type: Type.STRING },
+                    duration: { type: Type.STRING },
+                    purpose: { type: Type.STRING }
+                  },
+                  required: ['name', 'dosage', 'duration', 'purpose']
+                }
+              },
+              instructions: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              warnings: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              dietaryAdvice: { type: Type.STRING },
+              questionsForDoctor: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              }
+            },
+            required: ['diagnosisNote', 'medications', 'instructions', 'warnings', 'dietaryAdvice', 'questionsForDoctor']
+          }
+        }
       });
 
       const responseText = response.text || '';
-      // Clean JSON delimiters if present
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
+      try {
+        const parsed = JSON.parse(responseText);
         return res.json({ analysis: parsed });
-      } else {
-        return res.json({
-          analysis: {
-            rawText: responseText,
-            medications: [],
-            diagnosisNote: 'Analysis complete. Please review the detailed response.',
-            instructions: [responseText],
-            warnings: ['Always consult your prescribing physician before changing your medication regimen.'],
-            dietaryAdvice: 'Follow standard dietary advice provided by your care team.',
-            questionsForDoctor: ['Is my medication dosage optimal for my current condition?']
-          }
-        });
+      } catch (parseErr) {
+        // Clean JSON delimiters if present
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          return res.json({ analysis: parsed });
+        } else {
+          return res.json({
+            analysis: {
+              rawText: responseText,
+              medications: [],
+              diagnosisNote: 'Analysis complete. Please review the detailed response.',
+              instructions: [responseText],
+              warnings: ['Always consult your prescribing physician before changing your medication regimen.'],
+              dietaryAdvice: 'Follow standard dietary advice provided by your care team.',
+              questionsForDoctor: ['Is my medication dosage optimal for my current condition?']
+            }
+          });
+        }
       }
 
     } catch (error: any) {
