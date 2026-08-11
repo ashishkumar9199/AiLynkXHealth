@@ -65,7 +65,7 @@ export const LandingPortal: React.FC = () => {
     <div className="space-y-12 pb-16">
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 text-white rounded-3xl p-6 sm:p-12 shadow-2xl relative overflow-hidden border border-blue-700 min-h-[380px]">
+      <section className="bg-slate-950 text-white rounded-3xl p-6 sm:p-12 shadow-2xl relative overflow-hidden border border-slate-850 min-h-[380px]">
         {/* Background Slideshow Overlay */}
         <div className="absolute inset-0 z-0">
           {backgroundImages.map((src, idx) => (
@@ -74,14 +74,15 @@ export const LandingPortal: React.FC = () => {
               src={src}
               alt={`Service slide ${idx + 1}`}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                idx === currentBgIndex ? 'opacity-25' : 'opacity-0'
+                idx === currentBgIndex ? 'opacity-65' : 'opacity-0'
               }`}
               referrerPolicy="no-referrer"
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/95 via-blue-900/80 to-indigo-950/95 mix-blend-multiply"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          {/* Neutral Horizontal Gradient for perfect text contrast while preserving natural photo colors on the right */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
         </div>
 
         {/* Slide Indicators inside hero background */}
