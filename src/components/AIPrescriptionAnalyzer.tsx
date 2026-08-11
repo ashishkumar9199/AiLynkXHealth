@@ -278,179 +278,271 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
           {analysisResult && !loading && (
             <div className="space-y-6 animate-in fade-in duration-300">
               
-              {/* Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-                <div>
-                  <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    {t('analysisResults')}
-                  </h3>
-                  {analysisResult.diagnosisNote && (
-                    <p className="text-xs text-slate-500 mt-1 font-semibold bg-blue-50 border border-blue-100 p-2.5 rounded-xl">
-                      <span className="font-extrabold text-blue-900 uppercase text-[10px] block mb-1">Clinical Note / Impression:</span>
-                      {analysisResult.diagnosisNote}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-white border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors shrink-0"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Print / Save
-                </button>
-              </div>
-
-              {/* Identified Medications & Dosages - Structured list row format */}
-              <div className="space-y-3">
-                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                  <Pill className="w-4 h-4 text-blue-600" />
-                  {t('medicationsIdentified')}
-                </h4>
-                
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                  {/* Table Headers for standard screen sizes */}
-                  <div className="hidden sm:grid grid-cols-12 gap-4 bg-slate-50 px-4 py-2.5 border-b border-slate-200 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    <div className="col-span-4">Medication Name</div>
-                    <div className="col-span-3">Purpose</div>
-                    <div className="col-span-3">Dosage & Frequency</div>
-                    <div className="col-span-2 text-right">Duration</div>
+              {analysisResult.isLegible === false ? (
+                /* Specific error state if the uploaded document is blurry, illegible, or contains no medical text */
+                <div className="space-y-6">
+                  <div className="p-6 bg-amber-50/70 border border-amber-200 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center shrink-0 border border-amber-200">
+                        <AlertTriangle className="w-6 h-6 animate-pulse" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-slate-900 uppercase tracking-wide">
+                          Document Legibility Issue Detected
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          The clinical scan was unable to identify legible prescription or medical record text.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="divide-y divide-slate-100">
-                    {analysisResult.medications && analysisResult.medications.length > 0 ? (
-                      analysisResult.medications.map((med, i) => (
-                        <div key={i} className="p-4 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center hover:bg-slate-50/50 transition-colors">
-                          
-                          {/* Col 1: Name */}
-                          <div className="col-span-4 space-y-1">
-                            <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Medication Name</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
-                                <Pill className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="font-extrabold text-sm text-slate-950">{med.name}</span>
+                  {analysisResult.retakeTip && (
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                      <div className="flex items-center gap-2 text-indigo-900">
+                        <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
+                        <span className="text-xs font-black uppercase tracking-widest text-indigo-800">
+                          AI Diagnostic Insight:
+                        </span>
+                      </div>
+                      
+                      <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl text-xs text-indigo-950 font-medium leading-relaxed">
+                        "{analysisResult.retakeTip}"
+                      </div>
+
+                      <div className="space-y-2.5 pt-2">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          How to Capture a Perfect Medical Photo:
+                        </span>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="flex items-start gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-extrabold text-blue-700">
+                              1
+                            </span>
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-xs text-slate-800 block">Bright Direct Light</span>
+                              <span className="text-[10px] text-slate-500 block leading-tight">Place paper flat under uniform lighting. Avoid casting shadows.</span>
                             </div>
                           </div>
 
-                          {/* Col 2: Purpose */}
-                          <div className="col-span-3 mt-2 sm:mt-0 space-y-0.5">
-                            <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Purpose</span>
-                            <span className="text-xs text-slate-600 font-medium">{med.purpose || 'Not Specified'}</span>
-                          </div>
-
-                          {/* Col 3: Dosage */}
-                          <div className="col-span-3 mt-2 sm:mt-0 space-y-0.5">
-                            <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Dosage & Frequency</span>
-                            <span className="inline-block bg-blue-50 text-blue-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-blue-100">
-                              {med.dosage}
+                          <div className="flex items-start gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-extrabold text-blue-700">
+                              2
                             </span>
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-xs text-slate-800 block">Sharp Camera Focus</span>
+                              <span className="text-[10px] text-slate-500 block leading-tight">Tap on the text on your screen to trigger autofocus.</span>
+                            </div>
                           </div>
 
-                          {/* Col 4: Duration */}
-                          <div className="col-span-2 mt-2 sm:mt-0 sm:text-right space-y-0.5">
-                            <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Duration</span>
-                            <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-slate-200">
-                              {med.duration || 'N/A'}
+                          <div className="flex items-start gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-extrabold text-blue-700">
+                              3
                             </span>
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-xs text-slate-800 block">Keep Camera Flat</span>
+                              <span className="text-[10px] text-slate-500 block leading-tight">Hold camera parallel directly above the document.</span>
+                            </div>
                           </div>
 
+                          <div className="flex items-start gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-extrabold text-blue-700">
+                              4
+                            </span>
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-xs text-slate-800 block">Paste Clean Text</span>
+                              <span className="text-[10px] text-slate-500 block leading-tight">If photography fails, type or copy-paste text details manually.</span>
+                            </div>
+                          </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="p-6 text-center text-xs text-slate-500 font-medium">
-                        No specific medications identified in this analysis.
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Patient Guidelines & Instructions Checklist */}
-              {analysisResult.instructions && analysisResult.instructions.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-indigo-600" />
-                    Patient Guidelines & Usage Instructions
-                  </h4>
-                  <div className="bg-indigo-50/40 border border-indigo-100 rounded-2xl p-4 space-y-2.5">
-                    {analysisResult.instructions.map((inst, i) => (
-                      <div key={i} className="flex items-start gap-2.5 text-xs text-indigo-950 font-medium">
-                        <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                        <span className="leading-relaxed">{inst}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Warnings & Safety - Structured alerts */}
-              {analysisResult.warnings && analysisResult.warnings.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-600" />
-                    {t('safetyWarnings')}
-                  </h4>
-                  <div className="bg-red-50/50 border border-red-200 rounded-2xl overflow-hidden">
-                    <div className="bg-red-100/50 px-4 py-2 border-b border-red-200 flex items-center gap-2">
-                      <span className="text-[10px] font-black text-red-800 uppercase tracking-wider">Clinical Safety Guidance</span>
                     </div>
-                    <div className="p-4 space-y-3">
-                      {analysisResult.warnings.map((w, i) => (
-                        <div key={i} className="flex items-start gap-2.5 text-xs text-red-900 font-medium">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-200 text-[10px] font-black text-red-800">
-                            {i + 1}
-                          </span>
-                          <span className="leading-relaxed">{w}</span>
+                  )}
+
+                  <div className="p-4 bg-slate-100 border border-slate-200 rounded-2xl flex items-start gap-2.5 text-[11px] text-slate-500 leading-relaxed">
+                    <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                    <span>Please try capturing another photo or upload a clearer file. Feel free to use the manual text field to type the prescription instructions directly for analysis. Always consult your healthcare provider or physician for any medication questions.</span>
+                  </div>
+                </div>
+              ) : (
+                /* Regular Legible Render Block */
+                <>
+                  {/* Header */}
+                  <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div>
+                      <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                        {t('analysisResults')}
+                      </h3>
+                      {analysisResult.diagnosisNote && (
+                        <p className="text-xs text-slate-500 mt-1 font-semibold bg-blue-50 border border-blue-100 p-2.5 rounded-xl">
+                          <span className="font-extrabold text-blue-900 uppercase text-[10px] block mb-1">Clinical Note / Impression:</span>
+                          {analysisResult.diagnosisNote}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => window.print()}
+                      className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-white border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors shrink-0"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Print / Save
+                    </button>
+                  </div>
+
+                  {/* Identified Medications & Dosages - Structured list row format */}
+                  <div className="space-y-3">
+                    <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <Pill className="w-4 h-4 text-blue-600" />
+                      {t('medicationsIdentified')}
+                    </h4>
+                    
+                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+                      {/* Table Headers for standard screen sizes */}
+                      <div className="hidden sm:grid grid-cols-12 gap-4 bg-slate-50 px-4 py-2.5 border-b border-slate-200 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                        <div className="col-span-4">Medication Name</div>
+                        <div className="col-span-3">Purpose</div>
+                        <div className="col-span-3">Dosage & Frequency</div>
+                        <div className="col-span-2 text-right">Duration</div>
+                      </div>
+
+                      <div className="divide-y divide-slate-100">
+                        {analysisResult.medications && analysisResult.medications.length > 0 ? (
+                          analysisResult.medications.map((med, i) => (
+                            <div key={i} className="p-4 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center hover:bg-slate-50/50 transition-colors">
+                              
+                              {/* Col 1: Name */}
+                              <div className="col-span-4 space-y-1">
+                                <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Medication Name</span>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                                    <Pill className="w-3.5 h-3.5" />
+                                  </div>
+                                  <span className="font-extrabold text-sm text-slate-950">{med.name}</span>
+                                </div>
+                              </div>
+
+                              {/* Col 2: Purpose */}
+                              <div className="col-span-3 mt-2 sm:mt-0 space-y-0.5">
+                                <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Purpose</span>
+                                <span className="text-xs text-slate-600 font-medium">{med.purpose || 'Not Specified'}</span>
+                              </div>
+
+                              {/* Col 3: Dosage */}
+                              <div className="col-span-3 mt-2 sm:mt-0 space-y-0.5">
+                                <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Dosage & Frequency</span>
+                                <span className="inline-block bg-blue-50 text-blue-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-blue-100">
+                                  {med.dosage}
+                                </span>
+                              </div>
+
+                              {/* Col 4: Duration */}
+                              <div className="col-span-2 mt-2 sm:mt-0 sm:text-right space-y-0.5">
+                                <span className="text-[9px] sm:hidden font-black text-slate-400 uppercase tracking-widest block">Duration</span>
+                                <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-slate-200">
+                                  {med.duration || 'N/A'}
+                                </span>
+                              </div>
+
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-6 text-center text-xs text-slate-500 font-medium">
+                            No specific medications identified in this analysis.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Patient Guidelines & Instructions Checklist */}
+                  {analysisResult.instructions && analysisResult.instructions.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+                        Patient Guidelines & Usage Instructions
+                      </h4>
+                      <div className="bg-indigo-50/40 border border-indigo-100 rounded-2xl p-4 space-y-2.5">
+                        {analysisResult.instructions.map((inst, i) => (
+                          <div key={i} className="flex items-start gap-2.5 text-xs text-indigo-950 font-medium">
+                            <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                            <span className="leading-relaxed">{inst}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Warnings & Safety - Structured alerts */}
+                  {analysisResult.warnings && analysisResult.warnings.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        {t('safetyWarnings')}
+                      </h4>
+                      <div className="bg-red-50/50 border border-red-200 rounded-2xl overflow-hidden">
+                        <div className="bg-red-100/50 px-4 py-2 border-b border-red-200 flex items-center gap-2">
+                          <span className="text-[10px] font-black text-red-800 uppercase tracking-wider">Clinical Safety Guidance</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Dietary Advice */}
-              {analysisResult.dietaryAdvice && (
-                <div className="space-y-3">
-                  <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <Apple className="w-4 h-4 text-emerald-600" />
-                    {t('dietaryAdvice')}
-                  </h4>
-                  <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200">
-                      <Apple className="w-4 h-4" />
-                    </div>
-                    <p className="text-xs text-emerald-950 font-medium leading-relaxed">
-                      {analysisResult.dietaryAdvice}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Questions for Doctor */}
-              {analysisResult.questionsForDoctor && analysisResult.questionsForDoctor.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-amber-600" />
-                    {t('questionsForDoctor')}
-                  </h4>
-                  <div className="bg-amber-50/40 border border-amber-200 rounded-2xl p-4 space-y-2.5">
-                    {analysisResult.questionsForDoctor.map((q, i) => (
-                      <div key={i} className="flex items-start gap-2.5 text-xs text-slate-800 font-medium">
-                        <span className="text-amber-600 font-extrabold shrink-0 mt-0.5">?</span>
-                        <span className="leading-relaxed">{q}</span>
+                        <div className="p-4 space-y-3">
+                          {analysisResult.warnings.map((w, i) => (
+                            <div key={i} className="flex items-start gap-2.5 text-xs text-red-900 font-medium">
+                              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-200 text-[10px] font-black text-red-800">
+                                {i + 1}
+                              </span>
+                              <span className="leading-relaxed">{w}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    </div>
+                  )}
 
-              {/* Disclaimer */}
-              <div className="p-3 rounded-xl bg-slate-200/60 text-[11px] text-slate-600 flex items-start gap-2">
-                <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-                <span>{t('disclaimer')}</span>
-              </div>
+                  {/* Dietary Advice */}
+                  {analysisResult.dietaryAdvice && (
+                    <div className="space-y-3">
+                      <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <Apple className="w-4 h-4 text-emerald-600" />
+                        {t('dietaryAdvice')}
+                      </h4>
+                      <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200">
+                          <Apple className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs text-emerald-950 font-medium leading-relaxed">
+                          {analysisResult.dietaryAdvice}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Questions for Doctor */}
+                  {analysisResult.questionsForDoctor && analysisResult.questionsForDoctor.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <HelpCircle className="w-4 h-4 text-amber-600" />
+                        {t('questionsForDoctor')}
+                      </h4>
+                      <div className="bg-amber-50/40 border border-amber-200 rounded-2xl p-4 space-y-2.5">
+                        {analysisResult.questionsForDoctor.map((q, i) => (
+                          <div key={i} className="flex items-start gap-2.5 text-xs text-slate-800 font-medium">
+                            <span className="text-amber-600 font-extrabold shrink-0 mt-0.5">?</span>
+                            <span className="leading-relaxed">{q}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Disclaimer */}
+                  <div className="p-3 rounded-xl bg-slate-200/60 text-[11px] text-slate-600 flex items-start gap-2">
+                    <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                    <span>{t('disclaimer')}</span>
+                  </div>
+                </>
+              )}
 
             </div>
           )}

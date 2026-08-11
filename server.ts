@@ -45,6 +45,8 @@ async function startServer() {
         // Fallback simulated intelligent response if API key is missing or not provided
         return res.json({
           analysis: {
+            isLegible: true,
+            retakeTip: '',
             medications: [
               { name: 'Amoxicillin 500mg', dosage: '1 capsule 3x daily after meals', duration: '7 days', purpose: 'Antibiotic for bacterial infection' },
               { name: 'Paracetamol 650mg', dosage: '1 tablet as needed every 6 hours', duration: '3 days', purpose: 'Fever and pain relief' },
@@ -76,13 +78,19 @@ You are an expert AI Clinical Pharmacist and Medical Analyzer.
 Analyze the provided prescription or medical record document.
 Respond in the language specified: "${language || 'English'}".
 
+CRITICAL ACCURACY & LEGIBILITY CHECKS:
+1. "isLegible": First, evaluate if the uploaded document/image/text input is legible, well-focused, and actually represents a medical prescription, doctor's note, or health record. If the image is blurry, out of focus, lacks sufficient lighting, is cut off, has no medical text, or is a completely unrelated file (e.g. landscapes, animals, general documents), you MUST set "isLegible" to false.
+2. "retakeTip": If "isLegible" is false, generate a friendly, clinical-sounding patient guideline explaining exactly why the image couldn't be read, and provide clear step-by-step tips on how to retake a high-quality, clear photo (e.g. 'Please place the prescription flat on a well-lit surface under direct light', 'Ensure your camera focus is sharp', 'Keep the camera lens parallel to the paper', 'Avoid glares and hand-shake blur'). If "isLegible" is true, this can be empty.
+
 Provide a detailed, safe, structured json response containing:
-1. "diagnosisNote": Brief clinical impression or summary of what this prescription is treating.
-2. "medications": Array of objects [{ "name", "dosage", "duration", "purpose" }] listing all medications identified.
-3. "instructions": Array of strings for specific usage rules (timing, food, storage).
-4. "warnings": Array of safety warnings, side effects, or drug interaction alerts.
-5. "dietaryAdvice": Lifestyle and dietary recommendations relevant to these medications.
-6. "questionsForDoctor": 2-3 important questions the patient should ask their doctor during a consultation.
+1. "isLegible": boolean (legibility check indicator)
+2. "retakeTip": string (friendly tips on retaking or re-uploading a clearer document if "isLegible" is false, else empty)
+3. "diagnosisNote": Brief clinical impression or summary of what this prescription is treating. If illegible, provide a short note stating that details could not be parsed.
+4. "medications": Array of objects [{ "name", "dosage", "duration", "purpose" }] listing all medications identified. If illegible, keep empty.
+5. "instructions": Array of strings for specific usage rules (timing, food, storage). If illegible, keep empty.
+6. "warnings": Array of safety warnings, side effects, or drug interaction alerts. If illegible, keep empty.
+7. "dietaryAdvice": Lifestyle and dietary recommendations relevant to these medications. If illegible, keep empty.
+8. "questionsForDoctor": 2-3 important questions the patient should ask their doctor during a consultation. If illegible, keep empty.
 
 Format your output STRICTLY as raw valid JSON without markdown code block formatting (or plain json object string).
 `;
@@ -114,6 +122,14 @@ Format your output STRICTLY as raw valid JSON without markdown code block format
           responseSchema: {
             type: Type.OBJECT,
             properties: {
+              isLegible: {
+                type: Type.BOOLEAN,
+                description: 'True if the image/text is clear, legible, and represents medical or prescription details. False if too blurry, illegible, or unrelated.'
+              },
+              retakeTip: {
+                type: Type.STRING,
+                description: 'Friendly actionable tips suggesting how the patient should capture a better photograph or re-upload if isLegible is false.'
+              },
               diagnosisNote: { 
                 type: Type.STRING,
                 description: 'Brief clinical impression or summary of what this prescription is treating.'
@@ -145,7 +161,7 @@ Format your output STRICTLY as raw valid JSON without markdown code block format
                 items: { type: Type.STRING }
               }
             },
-            required: ['diagnosisNote', 'medications', 'instructions', 'warnings', 'dietaryAdvice', 'questionsForDoctor']
+            required: ['isLegible', 'retakeTip', 'diagnosisNote', 'medications', 'instructions', 'warnings', 'dietaryAdvice', 'questionsForDoctor']
           }
         }
       });

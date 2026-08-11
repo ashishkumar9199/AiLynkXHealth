@@ -172,6 +172,8 @@ export interface PrescriptionAnalysis {
   dietaryAdvice: string;
   questionsForDoctor: string[];
   isSimulated?: boolean;
+  isLegible?: boolean;
+  retakeTip?: string;
 }
 
 export interface Notification {
