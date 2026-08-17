@@ -879,7 +879,7 @@ export const PharmacyPortal: React.FC = () => {
                   Approval Pending
                 </span>
                 <p className="text-slate-500 font-medium max-w-sm mx-auto">
-                  Hello, Representative of {currentStore.name}. Your details are successfully registered. To list your store and phlebotomist service on Medicare Plus, please wait for platform administrator approval.
+                  Hello, Representative of {currentStore.name}. Your details are successfully registered. To list your store and phlebotomist service on AilynkX Health, please wait for platform administrator approval.
                 </p>
               </div>
 

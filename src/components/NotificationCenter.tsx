@@ -196,7 +196,7 @@ export const NotificationCenter: React.FC = () => {
         {/* Footer */}
         <div className="p-3 bg-slate-50 border-t border-slate-200 text-center">
           <p className="text-[11px] text-slate-500">
-            Medicare Plus Notification Engine • Real-Time Alerts Across All Portals
+            AilynkX Health Notification Engine • Real-Time Alerts Across All Portals
           </p>
         </div>
       </div>

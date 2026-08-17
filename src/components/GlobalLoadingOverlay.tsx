@@ -79,7 +79,7 @@ export const GlobalLoadingOverlay: React.FC = () => {
               className="text-white text-base font-black tracking-tight flex items-center gap-2 mb-2"
             >
               <RefreshCw className="w-4 h-4 animate-spin text-blue-400" />
-              Medicare Plus
+              AilynkX Health
             </motion.h3>
 
             {/* Dynamic Loading Status Hint */}

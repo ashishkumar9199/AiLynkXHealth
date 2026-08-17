@@ -521,7 +521,7 @@ Sent automatically from the AiLynkX Website Feedback Engine.
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Medicare Plus server running on http://0.0.0.0:${PORT}`);
+    console.log(`AilynkX Health server running on http://0.0.0.0:${PORT}`);
   });
 }
 

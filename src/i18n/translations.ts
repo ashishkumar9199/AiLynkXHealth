@@ -2,7 +2,7 @@ import { Language } from '../types';
 
 export const translations: Record<Language, Record<string, string>> = {
   en: {
-    appTitle: "Medicare Plus",
+    appTitle: "AilynkX Health",
     appSubtitle: "Telehealth & Clinic Portal",
     
     // Header & Navigation
@@ -113,7 +113,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   es: {
-    appTitle: "Medicare Plus",
+    appTitle: "AilynkX Health",
     appSubtitle: "Portal de Telemedicina y Clínica",
     portals: "Portales",
     selectPortal: "Seleccionar Portal",
@@ -211,7 +211,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   hi: {
-    appTitle: "मेडीकेयर प्लस",
+    appTitle: "एआईलिंक्स हेल्थ",
     appSubtitle: "टेलीहेल्थ और क्लिनिक पोर्टल",
     portals: "पोर्टल",
     selectPortal: "कार्यक्षेत्र पोर्टल चुनें",
@@ -308,7 +308,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   fr: {
-    appTitle: "Medicare Plus",
+    appTitle: "AilynkX Health",
     appSubtitle: "Portail de Télésanté & Clinique",
     portals: "Portails",
     selectPortal: "Sélectionner le Portail",
@@ -405,7 +405,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   ar: {
-    appTitle: "رعاية ميدي كير بلس",
+    appTitle: "رعاية إيليكس هيلث",
     appSubtitle: "بوابة الاستشارات الطبية والعيادات",
     portals: "البوابات",
     selectPortal: "اختر بوابتك",
@@ -502,7 +502,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   de: {
-    appTitle: "Medicare Plus",
+    appTitle: "AilynkX Health",
     appSubtitle: "Telemedizin & Klinik Portal",
     portals: "Portale",
     selectPortal: "Portal Auswählen",

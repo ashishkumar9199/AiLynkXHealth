@@ -351,7 +351,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (newHosp.approvalStatus === 'approved') {
       addNotification({
         title: '🏥 New Hospital Registered',
-        message: `${newHosp.name} has joined the Medicare Plus network!`,
+        message: `${newHosp.name} has joined the AilynkX Health network!`,
         type: 'system',
         targetPortal: 'landing'
       });
