@@ -8,6 +8,7 @@ import { SosQuickDialModal } from './components/SosQuickDialModal';
 import { AuthModal } from './components/AuthModal';
 import { Footer } from './components/Footer';
 import { FeedbackToggle } from './components/FeedbackToggle';
+import { GlobalLoadingOverlay } from './components/GlobalLoadingOverlay';
 
 // Portals
 import { LandingPortal } from './portals/LandingPortal';
@@ -68,6 +69,7 @@ function MainAppContent() {
       <NotificationCenter />
       <SosQuickDialModal />
       <AuthModal />
+      <GlobalLoadingOverlay />
 
       {/* Floating Feedback & Suggestions Panel */}
       <FeedbackToggle />

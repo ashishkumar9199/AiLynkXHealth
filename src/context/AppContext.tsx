@@ -106,6 +106,9 @@ interface AppContextType {
   endVideoCall: () => void;
   activeBookingDoctor: Doctor | null;
   setActiveBookingDoctor: (doc: Doctor | null) => void;
+  isGlobalLoading: boolean;
+  setIsGlobalLoading: (loading: boolean) => void;
+  triggerLoading: (ms?: number) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -212,6 +215,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [activeVideoCall, setActiveVideoCall] = useState<Appointment | null>(null);
   const [activeBookingDoctor, setActiveBookingDoctor] = useState<Doctor | null>(null);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false);
+
+  const triggerLoading = async (ms: number = 750) => {
+    setIsGlobalLoading(true);
+    await new Promise(resolve => setTimeout(resolve, ms));
+    setIsGlobalLoading(false);
+  };
 
   // Synchronize URL path with local portal state for full multi-page fidelity
   useEffect(() => {
@@ -223,24 +233,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const searchParams = new URLSearchParams(location.search.toLowerCase());
     const hasSecretInSearch = Array.from(searchParams.values()).some(val => val === cleanSecret) || location.search.toLowerCase().includes(cleanSecret);
 
-    if (cleanPath === cleanSecret || cleanHash === cleanSecret || hasSecretInSearch) {
-      setPortalState('admin');
-      if (cleanPath !== cleanSecret) {
-        navigate(`/${cleanSecret}`, { replace: true });
+    setIsGlobalLoading(true);
+    const timer = setTimeout(() => {
+      if (cleanPath === cleanSecret || cleanHash === cleanSecret || hasSecretInSearch) {
+        setPortalState('admin');
+        if (cleanPath !== cleanSecret) {
+          navigate(`/${cleanSecret}`, { replace: true });
+        }
+      } else if (cleanPath === 'patient') {
+        setPortalState('patient');
+      } else if (cleanPath === 'doctor') {
+        setPortalState('doctor');
+      } else if (cleanPath === 'hospital') {
+        setPortalState('hospital');
+      } else if (cleanPath === 'pharmacy') {
+        setPortalState('pharmacy');
+      } else if (cleanPath === 'lab') {
+        setPortalState('lab');
+      } else if (cleanPath === '' || cleanPath === 'landing') {
+        setPortalState('landing');
       }
-    } else if (cleanPath === 'patient') {
-      setPortalState('patient');
-    } else if (cleanPath === 'doctor') {
-      setPortalState('doctor');
-    } else if (cleanPath === 'hospital') {
-      setPortalState('hospital');
-    } else if (cleanPath === 'pharmacy') {
-      setPortalState('pharmacy');
-    } else if (cleanPath === 'lab') {
-      setPortalState('lab');
-    } else if (cleanPath === '' || cleanPath === 'landing') {
-      setPortalState('landing');
-    }
+      setIsGlobalLoading(false);
+    }, 600);
+
+    return () => clearTimeout(timer);
   }, [location.pathname, location.hash, location.search]);
 
   // Translation function
@@ -265,8 +281,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       targetPath = `/${cleanSecret}`;
     }
     
-    navigate(targetPath);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsGlobalLoading(true);
+    setTimeout(() => {
+      navigate(targetPath);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setIsGlobalLoading(false);
+    }, 600);
   };
 
   // Language switcher
@@ -758,7 +778,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       startVideoCall,
       endVideoCall,
       activeBookingDoctor,
-      setActiveBookingDoctor
+      setActiveBookingDoctor,
+      isGlobalLoading,
+      setIsGlobalLoading,
+      triggerLoading
     }}>
       {children}
     </AppContext.Provider>
