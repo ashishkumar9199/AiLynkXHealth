@@ -532,7 +532,7 @@ export const HospitalPortal: React.FC = () => {
                     <label className="text-xs font-bold text-slate-700">Hospital Admin Username</label>
                     <input 
                       type="text" 
-                      placeholder="e.g. stjude"
+                      placeholder="Enter hospital username"
                       value={usernameInput}
                       onChange={e => setUsernameInput(e.target.value)}
                       className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600 bg-slate-50"

@@ -288,7 +288,7 @@ export const DoctorPortal: React.FC = () => {
                   type="text"
                   value={usernameInput}
                   onChange={e => setUsernameInput(e.target.value)}
-                  placeholder="e.g. sarah123"
+                  placeholder="Enter doctor username"
                   className="w-full p-3 rounded-xl border border-slate-300 font-medium"
                   required
                 />

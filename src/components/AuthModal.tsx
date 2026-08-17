@@ -31,7 +31,11 @@ export const AuthModal: React.FC = () => {
     addHospital,
     addStore,
     addLab,
-    addNotification
+    addNotification,
+    doctors,
+    hospitals,
+    stores,
+    labs
   } = useApp();
 
   const [selectedRole, setSelectedRole] = useState<PortalType>('patient');
@@ -113,6 +117,55 @@ export const AuthModal: React.FC = () => {
       // Store active session and profile
       localStorage.setItem('logged_in_patient', JSON.stringify(foundPatient));
       localStorage.setItem('patient_profile', JSON.stringify(foundPatient));
+    } else if (selectedRole === 'doctor') {
+      const foundDoc = doctors.find(
+        (d: any) => d.username?.toLowerCase() === email.trim().toLowerCase() && d.password === password
+      );
+
+      if (!foundDoc) {
+        alert('Invalid doctor credentials. Please try again.');
+        return;
+      }
+
+      localStorage.setItem('logged_in_doctor_id', foundDoc.id);
+    } else if (selectedRole === 'hospital') {
+      const foundHosp = hospitals.find(
+        (h: any) => h.username?.toLowerCase() === email.trim().toLowerCase() && h.password === password
+      );
+
+      if (!foundHosp) {
+        alert('Invalid hospital credentials. Please try again.');
+        return;
+      }
+
+      localStorage.setItem('logged_in_hospital_id', foundHosp.id);
+    } else if (selectedRole === 'pharmacy') {
+      const foundStore = stores.find(
+        (s: any) => s.username?.toLowerCase() === email.trim().toLowerCase() && s.password === password
+      );
+
+      if (!foundStore) {
+        alert('Invalid pharmacy credentials. Please try again.');
+        return;
+      }
+
+      if (foundStore.isActive === false) {
+        alert('Your pharmacy partner store access has been deactivated by the administrator.');
+        return;
+      }
+
+      localStorage.setItem('logged_in_store_id', foundStore.id);
+    } else if (selectedRole === 'lab') {
+      const foundLab = labs.find(
+        (l: any) => l.username?.toLowerCase() === email.trim().toLowerCase() && l.password === password
+      );
+
+      if (!foundLab) {
+        alert('Invalid diagnostic laboratory credentials. Please try again.');
+        return;
+      }
+
+      localStorage.setItem('logged_in_lab_id', foundLab.id);
     }
 
     // Simulate login success
@@ -488,11 +541,11 @@ export const AuthModal: React.FC = () => {
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                     <input
-                      type="email"
+                      type="text"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. doctor@healthconnect.org"
+                      placeholder={selectedRole === 'patient' ? "e.g. name@example.com" : `Enter your ${selectedRole} username`}
                       className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:border-red-600 focus:ring-1 focus:ring-red-600/30 font-semibold"
                     />
                   </div>

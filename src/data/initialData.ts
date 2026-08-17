@@ -173,7 +173,11 @@ export const initialStores: PharmacyStore[] = [
     rating: 4.9,
     deliveryTime: '25-40 mins',
     isPartnerStore: true,
-    image: 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=500&auto=format&fit=crop&q=80'
+    image: 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=500&auto=format&fit=crop&q=80',
+    username: 'medcentral',
+    password: 'password123',
+    isActive: true,
+    approvalStatus: 'approved'
   },
   {
     id: 'store-2',
@@ -184,7 +188,11 @@ export const initialStores: PharmacyStore[] = [
     rating: 4.8,
     deliveryTime: '30-50 mins',
     isPartnerStore: true,
-    image: 'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=500&auto=format&fit=crop&q=80'
+    image: 'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=500&auto=format&fit=crop&q=80',
+    username: 'citycare',
+    password: 'password123',
+    isActive: true,
+    approvalStatus: 'approved'
   },
   {
     id: 'store-3',
@@ -195,7 +203,11 @@ export const initialStores: PharmacyStore[] = [
     rating: 4.7,
     deliveryTime: '15-30 mins',
     isPartnerStore: true,
-    image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=500&auto=format&fit=crop&q=80'
+    image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=500&auto=format&fit=crop&q=80',
+    username: 'apollo',
+    password: 'password123',
+    isActive: true,
+    approvalStatus: 'approved'
   }
 ];
 

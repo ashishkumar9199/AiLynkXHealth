@@ -288,11 +288,11 @@ export const PatientPortal: React.FC = () => {
               <div className="relative">
                 <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 <input
-                  type="email"
+                  type="text"
                   required
                   value={signInEmail}
                   onChange={(e) => setSignInEmail(e.target.value)}
-                  placeholder="e.g. patient@healthconnect.org"
+                  placeholder="e.g. name@example.com"
                   className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 font-semibold"
                 />
               </div>

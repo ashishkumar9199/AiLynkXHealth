@@ -701,7 +701,7 @@ export const PharmacyPortal: React.FC = () => {
                         type="text"
                         value={usernameInput}
                         onChange={e => setUsernameInput(e.target.value)}
-                        placeholder="e.g. medcentral"
+                        placeholder="Enter partner store username"
                         className="w-full p-3 rounded-xl border border-slate-300 font-medium"
                         required
                       />

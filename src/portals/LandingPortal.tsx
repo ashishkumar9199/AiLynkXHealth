@@ -65,7 +65,7 @@ export const LandingPortal: React.FC = () => {
     <div className="space-y-12 pb-16">
       
       {/* Hero Section */}
-      <section className="bg-slate-950 text-white rounded-3xl p-6 sm:p-12 shadow-2xl relative overflow-hidden border border-slate-850 min-h-[380px]">
+      <section className="bg-slate-950 text-white rounded-3xl px-5 py-10 sm:p-12 shadow-2xl relative overflow-hidden border border-slate-850 min-h-[380px] sm:min-h-[420px] flex items-center">
         {/* Background Slideshow Overlay */}
         <div className="absolute inset-0 z-0">
           {backgroundImages.map((src, idx) => (
@@ -73,16 +73,16 @@ export const LandingPortal: React.FC = () => {
               key={src}
               src={src}
               alt={`Service slide ${idx + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                idx === currentBgIndex ? 'opacity-65' : 'opacity-0'
+              className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ease-in-out ${
+                idx === currentBgIndex ? 'opacity-50 sm:opacity-65' : 'opacity-0'
               }`}
               referrerPolicy="no-referrer"
             />
           ))}
-          {/* Neutral Horizontal Gradient for perfect text contrast while preserving natural photo colors on the right */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+          {/* Neutral Horizontal & Vertical Gradients for perfect text contrast on small and large viewports */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/85 to-slate-950 sm:bg-gradient-to-r sm:from-slate-950 sm:via-slate-950/75 sm:to-transparent"></div>
+          <div className="absolute top-0 right-0 w-72 h-72 sm:w-96 sm:h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-80 sm:h-80 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
         </div>
 
         {/* Slide Indicators inside hero background */}
@@ -99,28 +99,26 @@ export const LandingPortal: React.FC = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 w-full">
           <div className="lg:col-span-12 space-y-6">
             
-
-
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight max-w-2xl">
               {t('heroTitle')}
             </h1>
 
-            <p className="text-blue-100 text-sm sm:text-base leading-relaxed max-w-xl">
+            <p className="text-blue-100 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl">
               {t('heroSubtitle')}
             </p>
 
             {/* Quick CTAs */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2 w-full">
               <button
                 id="hero-book-doctor-btn"
                 onClick={() => {
                   const elem = document.getElementById('doctors-section');
                   if (elem) elem.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="bg-red-600 hover:bg-red-700 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-red-600 hover:bg-red-700 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm cursor-pointer"
               >
                 <Stethoscope className="w-5 h-5" />
                 <span>{t('consultDoctors')}</span>
@@ -132,7 +130,7 @@ export const LandingPortal: React.FC = () => {
                   const elem = document.getElementById('prescription-analyzer-section');
                   if (elem) elem.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="bg-white text-blue-950 hover:bg-blue-50 font-extrabold px-6 py-3.5 rounded-2xl shadow-md transition-all flex items-center gap-2 text-sm border border-blue-200"
+                className="w-full sm:w-auto justify-center bg-white text-blue-950 hover:bg-blue-50 font-extrabold px-6 py-3.5 rounded-2xl shadow-md transition-all flex items-center gap-2 text-sm border border-blue-200 cursor-pointer"
               >
                 <span>{t('prescriptionAnalyzer')}</span>
               </button>
@@ -145,7 +143,7 @@ export const LandingPortal: React.FC = () => {
                     doctorElem.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="bg-red-600 hover:bg-red-700 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm border border-red-500"
+                className="w-full sm:w-auto justify-center bg-red-600 hover:bg-red-700 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm border border-red-500 cursor-pointer"
               >
                 <Stethoscope className="w-5 h-5" />
                 <span>{t('bookAppointment')}</span>
@@ -153,18 +151,18 @@ export const LandingPortal: React.FC = () => {
             </div>
 
             {/* Key Trust Stats */}
-            <div className="pt-6 grid grid-cols-3 gap-4 border-t border-blue-700/60 max-w-lg text-xs">
+            <div className="pt-6 grid grid-cols-3 gap-3 sm:gap-4 border-t border-blue-700/40 max-w-lg text-[10px] sm:text-xs">
               <div>
-                <span className="block text-xl font-extrabold text-white">100%</span>
-                <span className="text-blue-200 text-[11px]">Verified Doctors</span>
+                <span className="block text-lg sm:text-xl font-extrabold text-white">100%</span>
+                <span className="text-blue-200 text-[10px] sm:text-[11px] font-medium">Verified Doctors</span>
               </div>
               <div>
-                <span className="block text-xl font-extrabold text-white">24/7</span>
-                <span className="text-blue-200 text-[11px]">Video Consults</span>
+                <span className="block text-lg sm:text-xl font-extrabold text-white">24/7</span>
+                <span className="text-blue-200 text-[10px] sm:text-[11px] font-medium">Video Consults</span>
               </div>
               <div>
-                <span className="block text-xl font-extrabold text-white">Home</span>
-                <span className="text-blue-200 text-[11px]">Sample Pickup</span>
+                <span className="block text-lg sm:text-xl font-extrabold text-white">Home</span>
+                <span className="text-blue-200 text-[10px] sm:text-[11px] font-medium">Sample Pickup</span>
               </div>
             </div>
 

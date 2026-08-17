@@ -343,7 +343,7 @@ export const LabPortal: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Lab Username</label>
                 <input
                   type="text"
-                  placeholder="e.g. apexlab"
+                  placeholder="Enter lab username"
                   value={loginUsername}
                   onChange={e => setLoginUsername(e.target.value)}
                   className="w-full text-sm p-3 rounded-xl border border-slate-200 bg-slate-50 font-medium focus:outline-none focus:border-blue-600 focus:bg-white"
