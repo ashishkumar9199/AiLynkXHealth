@@ -831,20 +831,151 @@ export const LabPortal: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Steps workflow progress indicator */}
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-2">Workflow Phase</span>
-                  <div className="grid grid-cols-4 gap-1">
-                    <div className={`h-1.5 rounded-full ${selectedRequest.status !== 'pending' ? 'bg-red-600' : 'bg-red-300 animate-pulse'}`} />
-                    <div className={`h-1.5 rounded-full ${['technician-assigned', 'sample-collected', 'report-ready'].includes(selectedRequest.status) ? 'bg-red-600' : 'bg-slate-200'}`} />
-                    <div className={`h-1.5 rounded-full ${['sample-collected', 'report-ready'].includes(selectedRequest.status) ? 'bg-red-600' : 'bg-slate-200'}`} />
-                    <div className={`h-1.5 rounded-full ${selectedRequest.status === 'report-ready' ? 'bg-red-600' : 'bg-slate-200'}`} />
-                  </div>
-                  <div className="flex justify-between text-[8px] font-bold text-slate-400 uppercase tracking-wide mt-1">
-                    <span>1. New</span>
-                    <span>2. Dispatch</span>
-                    <span>3. Collected</span>
-                    <span>4. Published</span>
+                {/* Steps workflow progress indicator - Interactive Pathology Stepper */}
+                <div className="bg-white rounded-2xl border border-slate-150 p-4.5 space-y-4 shadow-xs">
+                  <span className="text-[10px] font-black text-slate-400 block uppercase tracking-wider">
+                    Diagnostic Collection Stepper Tracker
+                  </span>
+                  
+                  <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-150">
+                    
+                    {/* Step 1: Order Received */}
+                    <div className="relative group">
+                      {/* Circle Bullet */}
+                      <span className="absolute -left-[22px] top-0.5 w-4.5 h-4.5 rounded-full border border-emerald-500 bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      </span>
+                      
+                      <div>
+                        <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                          <span>1. Order Received</span>
+                          <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">Completed</span>
+                        </h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">Patient booking registered. Diagnostic payment authorized.</p>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Technician Assigned */}
+                    <div className="relative group">
+                      {/* Connector fill */}
+                      <span className={`absolute -left-[24px] -top-6 w-0.5 h-6 transition-all duration-300 ${
+                        ['technician-assigned', 'sample-collected', 'report-ready'].includes(selectedRequest.status) ? 'bg-emerald-500' : 'bg-slate-150'
+                      }`} />
+                      
+                      {/* Circle Bullet */}
+                      <span className={`absolute -left-[22px] top-0.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center transition-all ${
+                        ['technician-assigned', 'sample-collected', 'report-ready'].includes(selectedRequest.status)
+                          ? 'bg-emerald-500 border-emerald-500 text-white'
+                          : 'bg-white border-slate-300 text-slate-400'
+                      }`}>
+                        {['sample-collected', 'report-ready'].includes(selectedRequest.status) ? (
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        ) : selectedRequest.status === 'technician-assigned' ? (
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-black">2</span>
+                        )}
+                      </span>
+                      
+                      <div>
+                        <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                          <span>2. Technician Assigned</span>
+                          {selectedRequest.status === 'technician-assigned' && (
+                            <span className="text-[9px] font-black uppercase text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-md animate-pulse">In Progress</span>
+                          )}
+                          {['sample-collected', 'report-ready'].includes(selectedRequest.status) && (
+                            <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">Completed</span>
+                          )}
+                        </h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">
+                          {selectedRequest.status === 'pending' 
+                            ? 'Awaiting clinical dispatcher allocation.' 
+                            : `Phlebotomist ${selectedRequest.technicianName || 'Dispatched'} is en-route for specimen extraction.`}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Specimen Collected */}
+                    <div className="relative group">
+                      {/* Connector fill */}
+                      <span className={`absolute -left-[24px] -top-6 w-0.5 h-6 transition-all duration-300 ${
+                        ['sample-collected', 'report-ready'].includes(selectedRequest.status) ? 'bg-emerald-500' : 'bg-slate-150'
+                      }`} />
+
+                      {/* Circle Bullet */}
+                      <span className={`absolute -left-[22px] top-0.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center transition-all ${
+                        ['sample-collected', 'report-ready'].includes(selectedRequest.status)
+                          ? 'bg-emerald-500 border-emerald-500 text-white'
+                          : 'bg-white border-slate-300 text-slate-400'
+                      }`}>
+                        {selectedRequest.status === 'report-ready' ? (
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        ) : selectedRequest.status === 'sample-collected' ? (
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-black">3</span>
+                        )}
+                      </span>
+                      
+                      <div>
+                        <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                          <span>3. Sample Collected</span>
+                          {selectedRequest.status === 'sample-collected' && (
+                            <span className="text-[9px] font-black uppercase text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-md animate-pulse">In Lab</span>
+                          )}
+                          {selectedRequest.status === 'report-ready' && (
+                            <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">Completed</span>
+                          )}
+                        </h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">
+                          {['sample-collected', 'report-ready'].includes(selectedRequest.status)
+                            ? 'Blood serum / specimen collected and logged into pathology biochemistry assays.'
+                            : 'Specimen collection scheduled.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 4: Results Published */}
+                    <div className="relative group">
+                      {/* Connector fill */}
+                      <span className={`absolute -left-[24px] -top-6 w-0.5 h-6 transition-all duration-300 ${
+                        selectedRequest.status === 'report-ready' ? 'bg-emerald-500' : 'bg-slate-150'
+                      }`} />
+
+                      {/* Circle Bullet */}
+                      <span className={`absolute -left-[22px] top-0.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center transition-all ${
+                        selectedRequest.status === 'report-ready'
+                          ? 'bg-emerald-500 border-emerald-500 text-white'
+                          : 'bg-white border-slate-300 text-slate-400'
+                      }`}>
+                        {selectedRequest.status === 'report-ready' ? (
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        ) : (
+                          <span className="text-[9px] font-black">4</span>
+                        )}
+                      </span>
+                      
+                      <div>
+                        <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                          <span>4. Results Available</span>
+                          {selectedRequest.status === 'report-ready' && (
+                            <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">Published</span>
+                          )}
+                        </h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">
+                          {selectedRequest.status === 'report-ready'
+                            ? 'Diagnostic pathology assays validated, certified, and published to patient portal.'
+                            : 'Pending final analysis completion.'}
+                        </p>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
