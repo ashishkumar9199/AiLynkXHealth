@@ -23,6 +23,74 @@ export const PortalSwitcherDrawer: React.FC = () => {
 
   if (!isPortalDrawerOpen) return null;
 
+  const getPortalColorConfig = (id: string) => {
+    const configs: Record<string, { 
+      bgActive: string; 
+      badgeActive: string;
+      hoverBorder: string;
+      hoverBg: string;
+      iconBg: string;
+      iconColor: string;
+      checkColor: string;
+    }> = {
+      landing: {
+        bgActive: 'bg-blue-50/90 border-blue-500 shadow-md ring-2 ring-blue-500/10 scale-[1.01]',
+        badgeActive: 'bg-blue-100 text-blue-800 border-blue-200',
+        hoverBorder: 'group-hover:border-blue-300',
+        hoverBg: 'hover:bg-blue-50/20',
+        iconBg: 'bg-blue-50 text-blue-600',
+        iconColor: 'text-blue-600',
+        checkColor: 'text-blue-600'
+      },
+      patient: {
+        bgActive: 'bg-indigo-50/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/10 scale-[1.01]',
+        badgeActive: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+        hoverBorder: 'group-hover:border-indigo-300',
+        hoverBg: 'hover:bg-indigo-50/20',
+        iconBg: 'bg-indigo-50 text-indigo-600',
+        iconColor: 'text-indigo-600',
+        checkColor: 'text-indigo-600'
+      },
+      doctor: {
+        bgActive: 'bg-emerald-50/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/10 scale-[1.01]',
+        badgeActive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        hoverBorder: 'group-hover:border-emerald-300',
+        hoverBg: 'hover:bg-emerald-50/20',
+        iconBg: 'bg-emerald-50 text-emerald-600',
+        iconColor: 'text-emerald-600',
+        checkColor: 'text-emerald-600'
+      },
+      hospital: {
+        bgActive: 'bg-cyan-50/90 border-cyan-500 shadow-md ring-2 ring-cyan-500/10 scale-[1.01]',
+        badgeActive: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+        hoverBorder: 'group-hover:border-cyan-300',
+        hoverBg: 'hover:bg-cyan-50/20',
+        iconBg: 'bg-cyan-50 text-cyan-600',
+        iconColor: 'text-cyan-600',
+        checkColor: 'text-cyan-600'
+      },
+      pharmacy: {
+        bgActive: 'bg-amber-50/90 border-amber-500 shadow-md ring-2 ring-amber-500/10 scale-[1.01]',
+        badgeActive: 'bg-amber-100 text-amber-800 border-amber-200',
+        hoverBorder: 'group-hover:border-amber-300',
+        hoverBg: 'hover:bg-amber-50/20',
+        iconBg: 'bg-amber-50 text-amber-600',
+        iconColor: 'text-amber-600',
+        checkColor: 'text-amber-600'
+      },
+      lab: {
+        bgActive: 'bg-red-50/90 border-red-500 shadow-md ring-2 ring-red-500/10 scale-[1.01]',
+        badgeActive: 'bg-red-100 text-red-800 border-red-200',
+        hoverBorder: 'group-hover:border-red-300',
+        hoverBg: 'hover:bg-red-50/20',
+        iconBg: 'bg-red-50 text-red-600',
+        iconColor: 'text-red-600',
+        checkColor: 'text-red-600'
+      }
+    };
+    return configs[id] || configs.landing;
+  };
+
   const portalsList: {
     id: PortalType;
     nameKey: string;
@@ -116,43 +184,49 @@ export const PortalSwitcherDrawer: React.FC = () => {
 
           {portalsList.map(item => {
             const isActive = portal === item.id;
+            const colors = getPortalColorConfig(item.id);
             return (
               <button
                 key={item.id}
                 id={`select-portal-${item.id}`}
                 onClick={() => setPortal(item.id)}
-                className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3.5 group relative ${
+                className={`w-full text-left p-4.5 rounded-2xl border transition-all duration-200 flex items-start gap-4 group relative cursor-pointer ${
                   isActive
-                    ? 'border-blue-600 bg-blue-50/80 shadow-md ring-2 ring-blue-600/20'
-                    : `border-slate-200 bg-white ${item.highlightColor} shadow-sm hover:shadow`
+                    ? colors.bgActive
+                    : `border-slate-200/80 bg-white ${colors.hoverBg} ${colors.hoverBorder} shadow-xs hover:shadow-sm`
                 }`}
               >
-                <div className={`p-2.5 rounded-lg ${isActive ? 'bg-blue-600 text-white' : 'bg-slate-100'}`}>
+                {/* Left Active Glow Tag */}
+                {isActive && (
+                  <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-7 bg-blue-600 rounded-full" />
+                )}
+
+                <div className={`p-3 rounded-xl transition-colors ${isActive ? 'bg-blue-600 text-white' : colors.iconBg}`}>
                   {React.cloneElement(item.icon as React.ReactElement, {
-                    className: `w-5 h-5 ${isActive ? 'text-white' : ''}`
+                    className: `w-5 h-5 ${isActive ? 'text-white' : colors.iconColor}`
                   })}
                 </div>
 
-                <div className="flex-1 pr-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className={`font-semibold text-sm ${isActive ? 'text-blue-950 font-bold' : 'text-slate-900 group-hover:text-blue-700'}`}>
+                <div className="flex-1 min-w-0 pr-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className={`font-extrabold text-sm tracking-tight ${isActive ? 'text-slate-900' : 'text-slate-800 group-hover:text-blue-600'}`}>
                       {t(item.nameKey)}
                     </span>
                     {item.badge && (
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                        isActive ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                        isActive ? colors.badgeActive : 'bg-slate-50 text-slate-500 border-slate-100'
                       }`}>
                         {item.badge}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-500 mt-1 leading-normal">
                     {item.description}
                   </p>
                 </div>
 
                 {isActive && (
-                  <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 self-center" />
+                  <CheckCircle2 className={`w-5 h-5 ${colors.checkColor} shrink-0 self-center animate-in zoom-in-50 duration-150`} />
                 )}
               </button>
             );
