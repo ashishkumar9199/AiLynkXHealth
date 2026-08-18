@@ -67,6 +67,7 @@ interface AppContextType {
   appointments: Appointment[];
   bookAppointment: (apt: Omit<Appointment, 'id' | 'createdAt' | 'status'>) => Promise<Appointment>;
   updateAppointmentStatus: (id: string, status: Appointment['status'], ePrescription?: string, doctorNotes?: string) => void;
+  rescheduleAppointment: (id: string, date: string, timeSlot: string) => void;
 
   // Home Sample
   sampleRequests: HomeSampleRequest[];
@@ -603,6 +604,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const rescheduleAppointment = (id: string, date: string, timeSlot: string) => {
+    setAppointments(prev => prev.map(a => {
+      if (a.id === id) {
+        return {
+          ...a,
+          date,
+          timeSlot
+        };
+      }
+      return a;
+    }));
+
+    addNotification({
+      title: '📅 Appointment Rescheduled Successfully',
+      message: `Your appointment #${id} has been moved to ${date} at ${timeSlot}.`,
+      type: 'appointment',
+      targetPortal: 'patient'
+    });
+  };
+
   // Home Sample Collection
   const requestHomeSample = async (sampleData: Omit<HomeSampleRequest, 'id' | 'createdAt' | 'status'>): Promise<HomeSampleRequest> => {
     const newSample: HomeSampleRequest = {
@@ -805,6 +826,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       appointments,
       bookAppointment,
       updateAppointmentStatus,
+      rescheduleAppointment,
       sampleRequests,
       requestHomeSample,
       updateSampleStatus,

@@ -5,6 +5,7 @@ import { Appointment } from '../types';
 import { InsuranceVerification } from '../components/InsuranceVerification';
 import { PatientProfileSection } from '../components/PatientProfileSection';
 import { AIPrescriptionAnalyzer } from '../components/AIPrescriptionAnalyzer';
+import { InteractiveCalendar } from '../components/InteractiveCalendar';
 import { jsPDF } from 'jspdf';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { 
@@ -48,6 +49,8 @@ export const PatientPortal: React.FC = () => {
     endVideoCall,
     setPortal,
     addNotification,
+    rescheduleAppointment,
+    updateAppointmentStatus,
     t 
   } = useApp();
 
@@ -469,6 +472,7 @@ export const PatientPortal: React.FC = () => {
   };
 
   const [activeTab, setActiveTab] = useState<'appointments' | 'documents' | 'samples' | 'orders' | 'insurance' | 'consultations' | 'profile' | 'analyzer'>('appointments');
+  const [appointmentsView, setAppointmentsView] = useState<'calendar' | 'list'>('calendar');
   
   const myPastConsultations = appointments.filter(
     apt => apt.mode === 'video' && 
@@ -858,88 +862,164 @@ export const PatientPortal: React.FC = () => {
 
       {/* Tab Content 1: Appointments */}
       {activeTab === 'appointments' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-extrabold text-slate-900 text-lg">
-              Your Appointments
-            </h2>
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="font-extrabold text-slate-900 text-xl tracking-tight">
+                Your Appointment Schedule
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Manage dates, reschedule time slots, or join live video consultation rooms.
+              </p>
+            </div>
+
+            {/* View Mode Switcher */}
+            <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold gap-1 self-start sm:self-auto shadow-inner">
+              <button
+                id="view-mode-calendar-btn"
+                onClick={() => setAppointmentsView('calendar')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  appointmentsView === 'calendar' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Calendar Grid
+              </button>
+              <button
+                id="view-mode-list-btn"
+                onClick={() => setAppointmentsView('list')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  appointmentsView === 'list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                List View ({appointments.filter(apt => apt.patientEmail.toLowerCase() === (loggedInPatient?.email || '').toLowerCase()).length})
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {appointments.map(apt => (
-              <div key={apt.id} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all space-y-4">
-                
-                <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full border ${
-                    apt.mode === 'video' 
-                      ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                      : 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                  }`}>
-                    {apt.mode === 'video' ? '🎥 Video Consultation' : '🏥 Clinic Visit'}
-                  </span>
-                  
-                  <span className="text-xs font-mono font-bold text-slate-400">
-                    #{apt.id}
-                  </span>
-                </div>
+          {appointmentsView === 'calendar' ? (
+            <div className="bg-white p-2 rounded-3xl border border-slate-100">
+              <InteractiveCalendar 
+                appointments={appointments}
+                rescheduleAppointment={rescheduleAppointment}
+                updateAppointmentStatus={updateAppointmentStatus}
+                startVideoCall={startVideoCall}
+                loggedInPatient={loggedInPatient}
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {appointments
+                .filter(apt => apt.patientEmail.toLowerCase() === (loggedInPatient?.email || '').toLowerCase())
+                .map(apt => (
+                  <div key={apt.id} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all space-y-4">
+                    
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full border ${
+                        apt.mode === 'video' 
+                          ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                          : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                      }`}>
+                        {apt.mode === 'video' ? '🎥 Video Consultation' : '🏥 Clinic Visit'}
+                      </span>
+                      
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                          apt.status === 'completed' 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                            : apt.status === 'cancelled'
+                              ? 'bg-slate-50 text-slate-500 border-slate-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {apt.status}
+                        </span>
+                        <span className="text-xs font-mono font-bold text-slate-400">
+                          #{apt.id}
+                        </span>
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-3">
-                  <img 
-                    src={apt.doctorAvatar} 
-                    alt={apt.doctorName} 
-                    className="w-12 h-12 rounded-2xl object-cover border-2 border-blue-600/20"
-                  />
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900">
-                      {apt.doctorName}
-                    </h3>
-                    <p className="text-xs text-blue-700 font-semibold">
-                      {apt.doctorSpecialty}
-                    </p>
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={apt.doctorAvatar} 
+                        alt={apt.doctorName} 
+                        className="w-12 h-12 rounded-2xl object-cover border-2 border-blue-600/20"
+                      />
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900">
+                          {apt.doctorName}
+                        </h3>
+                        <p className="text-xs text-blue-700 font-semibold">
+                          {apt.doctorSpecialty}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{apt.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{apt.timeSlot}</span>
+                      </div>
+                    </div>
+
+                    {apt.symptoms && (
+                      <p className="text-xs text-slate-600 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
+                        <strong>Reason:</strong> {apt.symptoms}
+                      </p>
+                    )}
+
+                    {/* Reschedule inline date selector directly in list view */}
+                    {apt.status === 'scheduled' && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setAppointmentsView('calendar');
+                          }}
+                          className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold rounded-xl text-center border border-slate-200 transition-all cursor-pointer"
+                        >
+                          Reschedule / Manage
+                        </button>
+                        {apt.mode === 'video' && (
+                          <button
+                            id={`join-video-call-btn-${apt.id}`}
+                            onClick={() => startVideoCall(apt)}
+                            className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <Video className="w-4 h-4" />
+                            <span>Join Video</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {apt.ePrescription && (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-900 font-medium">
+                        <p className="font-bold text-emerald-950 mb-1">✓ Digital E-Prescription Issued</p>
+                        <p className="font-mono text-[11px] whitespace-pre-wrap text-emerald-800">
+                          {apt.ePrescription}
+                        </p>
+                      </div>
+                    )}
+
                   </div>
-                </div>
+                ))}
 
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-2 text-xs text-slate-600">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                    <span>{apt.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-blue-600" />
-                    <span>{apt.timeSlot}</span>
-                  </div>
-                </div>
-
-                {apt.symptoms && (
-                  <p className="text-xs text-slate-600 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
-                    <strong>Reason:</strong> {apt.symptoms}
-                  </p>
-                )}
-
-                {/* Video Call Trigger Action */}
-                {apt.mode === 'video' && (
+              {appointments.filter(apt => apt.patientEmail.toLowerCase() === (loggedInPatient?.email || '').toLowerCase()).length === 0 && (
+                <div className="col-span-2 text-center py-12 bg-white rounded-3xl border border-slate-200 space-y-4">
+                  <p className="text-sm font-semibold text-slate-500">You have no scheduled appointments.</p>
                   <button
-                    id={`join-video-call-btn-${apt.id}`}
-                    onClick={() => startVideoCall(apt)}
-                    className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-extrabold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    onClick={() => setPortal('landing')}
+                    className="px-5 py-2.5 bg-blue-600 text-white font-extrabold rounded-xl text-xs shadow-md cursor-pointer"
                   >
-                    <Video className="w-4 h-4" />
-                    <span>Join Video Call Now</span>
+                    Book New Consultation
                   </button>
-                )}
-
-                {apt.ePrescription && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-900 font-medium">
-                    <p className="font-bold text-emerald-950 mb-1">✓ Digital E-Prescription Issued</p>
-                    <p className="font-mono text-[11px] whitespace-pre-wrap text-emerald-800">
-                      {apt.ePrescription}
-                    </p>
-                  </div>
-                )}
-
-              </div>
-            ))}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
