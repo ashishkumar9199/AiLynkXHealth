@@ -774,12 +774,14 @@ export const PatientPortal: React.FC = () => {
       </div>
 
       {/* Tabs Bar */}
-      <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 overflow-x-auto text-xs font-bold gap-1">
+      <div className="flex bg-white/80 backdrop-blur-md p-2 rounded-3xl border border-slate-200/90 overflow-x-auto text-xs font-bold gap-1.5 shadow-sm sticky top-2 z-30">
         <button
           id="tab-appointments"
           onClick={() => setActiveTab('appointments')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'appointments' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'appointments' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <Calendar className="w-4 h-4" />
@@ -789,8 +791,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-availability"
           onClick={() => setActiveTab('availability')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'availability' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'availability' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <TrendingUp className="w-4 h-4 text-emerald-500 animate-pulse" />
@@ -800,8 +804,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-documents"
           onClick={() => setActiveTab('documents')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'documents' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'documents' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -811,8 +817,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-analyzer"
           onClick={() => setActiveTab('analyzer')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'analyzer' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'analyzer' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
@@ -822,8 +830,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-samples"
           onClick={() => setActiveTab('samples')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'samples' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'samples' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <TestTube2 className="w-4 h-4" />
@@ -833,8 +843,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-orders"
           onClick={() => setActiveTab('orders')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'orders' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'orders' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <Package className="w-4 h-4" />
@@ -844,8 +856,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-insurance"
           onClick={() => setActiveTab('insurance')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'insurance' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'insurance' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
@@ -855,8 +869,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-consultations"
           onClick={() => setActiveTab('consultations')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'consultations' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'consultations' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <Clock className="w-4 h-4" />
@@ -866,8 +882,10 @@ export const PatientPortal: React.FC = () => {
         <button
           id="tab-profile"
           onClick={() => setActiveTab('profile')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-            activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 whitespace-nowrap ${
+            activeTab === 'profile' 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10 scale-102 font-black' 
+              : 'text-slate-600 hover:text-blue-700 hover:bg-slate-100'
           }`}
         >
           <User className="w-4 h-4" />
