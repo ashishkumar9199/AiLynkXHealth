@@ -42,13 +42,7 @@ export const Footer: React.FC = () => {
         {/* Brand Column */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-blue-700 font-extrabold text-base shadow-xs">
-              +
-            </div>
             <div>
-              <h3 className="font-extrabold text-base text-white tracking-tight">
-                AiLynk<span className="text-red-400 font-serif italic text-lg">X</span> <span className="text-emerald-400">Health</span>
-              </h3>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">TELEHEALTH ECOSYSTEM PLATFORM</p>
             </div>
           </div>
