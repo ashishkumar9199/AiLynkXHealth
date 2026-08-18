@@ -109,17 +109,6 @@ export const Header: React.FC = () => {
               6
             </span>
           </button>
-
-          {/* Website Logo */}
-          <div 
-            onClick={() => setPortal('landing')} 
-            className="flex items-center gap-2 cursor-pointer group shrink-0"
-            title="Go to Homepage"
-          >
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-700 font-extrabold text-lg shadow-sm border-2 border-blue-200 group-hover:scale-105 transition-transform">
-              +
-            </div>
-          </div>
         </div>
 
         {/* Center Active Workspace Indicator Badge (Desktop) */}
