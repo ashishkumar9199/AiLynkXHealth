@@ -379,6 +379,12 @@ export const initialNotifications: Notification[] = [
   }
 ];
 
+const getRelativeDateString = (offsetDays: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+};
+
 export const initialAppointments: Appointment[] = [
   {
     id: 'apt-101',
@@ -391,8 +397,8 @@ export const initialAppointments: Appointment[] = [
     doctorName: 'Dr. Sarah Jenkins',
     doctorSpecialty: 'Cardiologist',
     doctorAvatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&auto=format&fit=crop&q=80',
-    mode: 'video',
-    date: '2026-07-25',
+    mode: 'clinic',
+    date: getRelativeDateString(1),
     timeSlot: '02:00 PM',
     symptoms: 'Mild chest tightness after exercise and high blood pressure reading (142/90).',
     prescriptionPdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
@@ -415,7 +421,7 @@ export const initialAppointments: Appointment[] = [
     doctorSpecialty: 'Dermatologist & Cosmetologist',
     doctorAvatar: 'https://images.unsplash.com/photo-1594824813566-88855ce78961?w=400&auto=format&fit=crop&q=80',
     mode: 'clinic',
-    date: '2026-07-26',
+    date: getRelativeDateString(2),
     timeSlot: '11:00 AM',
     symptoms: 'Persistent skin inflammation and allergic rash on right forearm.',
     prescriptionPdfName: 'Skin_Allergy_History.pdf',
@@ -511,3 +517,49 @@ export const initialLabs: DiagnosticLab[] = [
     approvalStatus: 'approved'
   }
 ];
+
+export const initialSampleRequests: HomeSampleRequest[] = [
+  {
+    id: 'req-201',
+    patientName: 'Demo Patient',
+    patientPhone: '+1 555-0199',
+    patientAddress: '128 Pinecrest Avenue, Apartment 4B',
+    selectedTests: ['Complete Blood Count (CBC)', 'Lipid Profile', 'HbA1c (Glycated Haemoglobin)'],
+    preferredDate: '2026-08-16',
+    preferredTime: '08:00 AM - 10:00 AM',
+    status: 'report-ready',
+    technicianName: 'Rahul Sharma',
+    technicianPhone: '+1 (555) 902-1244',
+    totalAmount: 120,
+    createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+    labId: 'lab-1',
+    labName: 'Apex Diagnostic & Imaging Hub',
+    reportPdfName: 'Health_Report_CBC_Lipid_HbA1c.pdf',
+    reportPdfUrl: '#',
+    reportComments: `Biomarker Readings Summary:
+• Haemoglobin: 14.5 g/dL (Normal: 13.5 - 17.5 g/dL)
+• Fasting Blood Sugar: 104 mg/dL (Normal: 70 - 100 mg/dL) [Borderline Elevated]
+• Total Cholesterol: 195 mg/dL (Normal: < 200 mg/dL)
+• HbA1c: 5.6% (Normal: < 5.7%)
+• Triglycerides: 148 mg/dL (Normal: < 150 mg/dL)
+
+Clinical Review: All metabolic and hematological parameters are within stable reference limits. Fasting blood glucose is borderline elevated, suggesting mild dietary adjustments and regular walk routines. Keep lipid profile monitored.`
+  },
+  {
+    id: 'req-202',
+    patientName: 'Demo Patient',
+    patientPhone: '+1 555-0199',
+    patientAddress: '128 Pinecrest Avenue, Apartment 4B',
+    selectedTests: ['Thyroid Panel (T3, T4, TSH)', 'Vitamin D3 & B12 Assay'],
+    preferredDate: '2026-08-19',
+    preferredTime: '09:00 AM - 11:00 AM',
+    status: 'technician-assigned',
+    technicianName: 'Marcus Aurelio',
+    technicianPhone: '+1 (555) 482-1299',
+    totalAmount: 85,
+    createdAt: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
+    labId: 'lab-2',
+    labName: 'Precision Pathology Labs'
+  }
+];
+

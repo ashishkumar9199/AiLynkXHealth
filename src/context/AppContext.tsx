@@ -22,7 +22,8 @@ import {
   initialNotifications,
   initialAppointments,
   initialHospitals,
-  initialLabs
+  initialLabs,
+  initialSampleRequests
 } from '../data/initialData';
 import { translations } from '../i18n/translations';
 
@@ -196,7 +197,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Error parsing stored sample requests', e);
       }
     }
-    return [];
+    return initialSampleRequests;
   });
 
   useEffect(() => {
@@ -222,6 +223,61 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await new Promise(resolve => setTimeout(resolve, ms));
     setIsGlobalLoading(false);
   };
+
+  // Automated 24-Hour Clinic Appointment Notification & Email Dispatch System
+  useEffect(() => {
+    const checkAppointmentReminders = () => {
+      const processedKey = 'aily_processed_reminders_24h';
+      const processed: string[] = JSON.parse(localStorage.getItem(processedKey) || '[]');
+      const updatedProcessed = [...processed];
+      let updatedNotifs = [...notifications];
+      let hasNewNotif = false;
+
+      appointments.forEach(apt => {
+        if (apt.status === 'scheduled') {
+          const aptDate = new Date(apt.date);
+          const today = new Date();
+          const tomorrow = new Date();
+          tomorrow.setDate(today.getDate() + 1);
+
+          const isTomorrow = aptDate.toDateString() === tomorrow.toDateString();
+          const uniqueId = `reminder-24h-${apt.id}`;
+
+          if (isTomorrow && !processed.includes(uniqueId)) {
+            const newNotif: Notification = {
+              id: uniqueId,
+              title: '📅 24-Hour Clinic Appointment Reminder',
+              message: `Clinical Notification: Your consultation with ${apt.doctorName} (${apt.doctorSpecialty}) is tomorrow at ${apt.timeSlot}. Please carry your medical history documents or upload them to the portal.`,
+              timestamp: 'Just now',
+              type: 'appointment',
+              read: false,
+              targetPortal: 'patient'
+            };
+
+            updatedNotifs = [newNotif, ...updatedNotifs];
+            updatedProcessed.push(uniqueId);
+            hasNewNotif = true;
+
+            // Trigger simulated background email alert
+            console.log(`[Notification Dispatcher] Sent automated 24h clinic reminder email to ${apt.patientEmail} & SMS to ${apt.patientPhone}`);
+            localStorage.setItem(`email_dispatch_log_${apt.id}`, JSON.stringify({
+              sentTo: apt.patientEmail,
+              phone: apt.patientPhone,
+              subject: `Clinic Appointment Reminder - ${apt.doctorName}`,
+              dispatchedAt: new Date().toISOString()
+            }));
+          }
+        }
+      });
+
+      if (hasNewNotif) {
+        setNotifications(updatedNotifs);
+        localStorage.setItem(processedKey, JSON.stringify(updatedProcessed));
+      }
+    };
+
+    checkAppointmentReminders();
+  }, [appointments]);
 
   // Synchronize URL path with local portal state for full multi-page fidelity
   useEffect(() => {
