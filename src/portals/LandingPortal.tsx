@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { AIPrescriptionAnalyzer } from '../components/AIPrescriptionAnalyzer';
 import { DoctorCard } from '../components/DoctorCard';
 import { AppointmentBookingModal } from '../components/AppointmentBookingModal';
 import { HomeSampleCollectionModal } from '../components/HomeSampleCollectionModal';
@@ -288,9 +287,6 @@ export const LandingPortal: React.FC = () => {
         </button>
 
       </section>
-
-      {/* AI Prescription Analyzer Component */}
-      <AIPrescriptionAnalyzer />
 
       {/* Doctors Section (Added by Admin) */}
       <section id="doctors-section" className="space-y-6 pt-6">
