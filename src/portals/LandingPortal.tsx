@@ -377,10 +377,6 @@ export const LandingPortal: React.FC = () => {
       {/* Home Sample Collection Banner */}
       <section className="bg-gradient-to-r from-emerald-900 to-teal-950 text-white rounded-3xl p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-emerald-800">
         <div className="space-y-2 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 bg-emerald-700 text-emerald-100 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-            <TestTube2 className="w-3.5 h-3.5 text-yellow-300" />
-            Lab Test at Doorstep
-          </div>
           <h3 className="text-2xl font-black text-white">
             Apply for Home Sample Collection
           </h3>
