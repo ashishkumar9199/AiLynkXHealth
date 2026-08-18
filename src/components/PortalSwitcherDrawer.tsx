@@ -157,17 +157,6 @@ export const PortalSwitcherDrawer: React.FC = () => {
               </button>
             );
           })}
-
-          {/* Quick Admin Note */}
-          <div className="mt-6 p-4 rounded-xl bg-gradient-to-br from-red-50 to-amber-50 border border-red-200/60">
-            <div className="flex items-center gap-2 text-red-800 font-bold text-xs">
-              <Sparkles className="w-4 h-4 text-red-600" />
-              <span>Admin & Doctor Integration</span>
-            </div>
-            <p className="text-xs text-slate-600 mt-1.5 leading-normal">
-              Doctors added by Admin appear live on the landing page! Patients can upload prescription PDFs during booking which doctors assess live inside Video Calls.
-            </p>
-          </div>
         </div>
 
         {/* Drawer Footer */}
