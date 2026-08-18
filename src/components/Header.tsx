@@ -94,42 +94,42 @@ export const Header: React.FC = () => {
           <button
             id="portal-hamburger-menu-btn"
             onClick={() => setIsPortalDrawerOpen(true)}
-            className="p-2 bg-blue-800 hover:bg-blue-900 text-white rounded-lg transition-colors border border-blue-600 flex items-center gap-1.5 sm:gap-2 shadow-sm group cursor-pointer shrink-0"
+            className="p-2 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-full transition-all border border-white/25 flex items-center gap-1.5 sm:gap-2.5 shadow-md shadow-blue-950/10 hover:shadow-lg hover:shadow-blue-950/20 group cursor-pointer shrink-0"
             title="Open Portals Switcher Menu"
           >
-            <div className="flex flex-col gap-1 w-5 h-4 justify-center items-center">
-              <span className="w-5 h-0.5 bg-white rounded-full transition-all group-hover:bg-red-300"></span>
-              <span className="w-5 h-0.5 bg-white rounded-full transition-all group-hover:bg-red-300"></span>
-              <span className="w-5 h-0.5 bg-white rounded-full transition-all group-hover:bg-red-300"></span>
+            <div className="flex flex-col gap-1 w-5 h-3.5 justify-center items-center">
+              <span className="w-4 h-0.5 bg-white rounded-full transition-all group-hover:w-5 group-hover:translate-x-0.5"></span>
+              <span className="w-5 h-0.5 bg-white rounded-full transition-all"></span>
+              <span className="w-3.5 h-0.5 bg-white rounded-full transition-all group-hover:w-5 group-hover:-translate-x-0.5"></span>
             </div>
-            <span className="hidden sm:inline-block text-xs font-bold uppercase tracking-wider text-white">
+            <span className="hidden sm:inline-block text-xs font-black uppercase tracking-widest text-white">
               {t('portals')}
             </span>
-            <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded uppercase hidden md:inline-block">
+            <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full hidden md:inline-block shadow-sm">
               6
             </span>
           </button>
         </div>
 
         {/* Center Active Workspace Indicator Badge (Desktop) */}
-        <div className="hidden lg:flex items-center gap-2 bg-blue-800 border border-blue-600 px-3 py-1.5 rounded-full text-xs font-semibold text-blue-100 shadow-inner">
+        <div className="hidden lg:flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-1.5 rounded-full text-xs font-bold text-blue-100 shadow-inner">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="text-blue-200 text-[10px] uppercase tracking-wider font-bold">Portal:</span>
-          <span className="text-white font-extrabold">{getPortalName(portal)}</span>
+          <span className="text-blue-200 text-[10px] uppercase tracking-wider font-extrabold">Portal:</span>
+          <span className="text-white font-black">{getPortalName(portal)}</span>
         </div>
 
         {/* Right Action Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-3 bg-blue-800/40 p-1 sm:p-1.5 rounded-full border border-white/10 shadow-inner">
 
           {/* Multi-Language Selector Pill */}
           <div className="relative">
             <button 
               id="language-selector-btn"
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center justify-center sm:justify-start gap-1 sm:gap-1.5 bg-blue-800 hover:bg-blue-900 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-full text-xs font-bold transition-all border border-blue-600 shadow-xs cursor-pointer shrink-0"
+              className="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 bg-white/10 hover:bg-white/20 active:scale-95 text-white w-9 h-9 sm:w-auto sm:px-4 sm:py-2 rounded-full text-xs font-bold transition-all border border-white/25 shadow-sm cursor-pointer shrink-0"
             >
               <Globe className="w-3.5 h-3.5 text-blue-200" />
-              <span className="uppercase text-[11px] tracking-wider hidden sm:inline">{language}</span>
+              <span className="uppercase text-[11px] tracking-widest font-black hidden sm:inline">{language}</span>
               <span className="hidden sm:inline text-xs">{languagesList.find(l => l.code === language)?.flag}</span>
               <ChevronDown className={`w-3 h-3 text-blue-300 transition-transform duration-200 hidden sm:inline ${isLangOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -173,12 +173,12 @@ export const Header: React.FC = () => {
           <button
             id="notification-center-header-btn"
             onClick={() => setIsNotificationDrawerOpen(true)}
-            className="p-2 w-8 h-8 flex items-center justify-center rounded-full bg-blue-800 hover:bg-blue-900 text-white transition-all relative border border-blue-600 group shadow-xs cursor-pointer shrink-0"
+            className="p-2 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all relative border border-white/25 group shadow-sm cursor-pointer shrink-0"
             title="Notification Center"
           >
             <Bell className="w-4 h-4 text-blue-100 group-hover:text-white" />
             {unreadNotificationCount > 0 && (
-              <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-blue-700"></span>
+              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-blue-700"></span>
             )}
           </button>
 
@@ -186,12 +186,12 @@ export const Header: React.FC = () => {
           <button
             id="cart-header-btn"
             onClick={() => setPortal('pharmacy')}
-            className="p-2 w-8 h-8 flex items-center justify-center rounded-full bg-blue-800 hover:bg-blue-900 text-white transition-all relative border border-blue-600 group shadow-xs cursor-pointer shrink-0"
+            className="p-2 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all relative border border-white/25 group shadow-sm cursor-pointer shrink-0"
             title="Medicine Shopping Cart"
           >
             <ShoppingCart className="w-4 h-4 text-blue-100 group-hover:text-white" />
             {totalCartCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center px-1 border border-blue-700 shadow-xs">
+              <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center px-1 border-2 border-blue-700 shadow-sm">
                 {totalCartCount}
               </span>
             )}
@@ -204,11 +204,11 @@ export const Header: React.FC = () => {
               setAuthModalMode('login');
               setIsAuthModalOpen(true);
             }}
-            className="flex items-center justify-center sm:justify-start gap-1.5 bg-blue-800 hover:bg-blue-900 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-full text-xs font-bold transition-all border border-blue-600 shadow-xs cursor-pointer hover:border-blue-400 active:scale-95 shrink-0"
+            className="flex items-center justify-center sm:justify-start gap-1.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white w-9 h-9 sm:w-auto sm:px-4 sm:py-2 rounded-full text-xs font-bold transition-all border border-white/25 shadow-sm cursor-pointer hover:border-white/40 shrink-0"
             title="Sign In"
           >
             <LogIn className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-blue-200" />
-            <span className="hidden sm:inline">Sign In</span>
+            <span className="hidden sm:inline font-bold">Sign In</span>
           </button>
 
           {/* Sign Up / Register Button */}
@@ -218,7 +218,7 @@ export const Header: React.FC = () => {
               setAuthModalMode('signup');
               setIsAuthModalOpen(true);
             }}
-            className="flex items-center justify-center sm:justify-start gap-1.5 bg-red-600 hover:bg-red-700 text-white w-8 h-8 sm:w-auto sm:px-3.5 sm:py-1.5 rounded-full text-xs font-black transition-all border border-red-500 shadow-md hover:shadow-lg active:scale-95 shrink-0"
+            className="flex items-center justify-center sm:justify-start gap-1.5 bg-red-600 hover:bg-red-700 text-white w-9 h-9 sm:w-auto sm:px-4.5 sm:py-2 rounded-full text-xs font-black transition-all border border-red-500 shadow-md hover:shadow-lg active:scale-95 shrink-0"
             title="Register"
           >
             <UserPlus className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
