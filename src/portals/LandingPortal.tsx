@@ -64,7 +64,7 @@ export const LandingPortal: React.FC = () => {
     <div className="space-y-12 pb-16">
       
       {/* Hero Section */}
-      <section className="bg-slate-950 text-white rounded-3xl px-5 py-10 sm:p-12 shadow-2xl relative overflow-hidden border border-slate-850 min-h-[380px] sm:min-h-[420px] flex items-center">
+      <section className="bg-slate-950 text-white -mx-4 sm:-mx-6 lg:-mx-8 px-5 py-10 sm:p-12 shadow-2xl relative overflow-hidden border-y border-slate-850 min-h-[380px] sm:min-h-[420px] flex items-center">
         {/* Background Slideshow Overlay */}
         <div className="absolute inset-0 z-0">
           {backgroundImages.map((src, idx) => (
