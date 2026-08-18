@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { VideoCallModal } from '../components/VideoCallModal';
-import { Appointment } from '../types';
+import { Appointment, Doctor } from '../types';
 import { InsuranceVerification } from '../components/InsuranceVerification';
 import { PatientProfileSection } from '../components/PatientProfileSection';
 import { AIPrescriptionAnalyzer } from '../components/AIPrescriptionAnalyzer';
 import { InteractiveCalendar } from '../components/InteractiveCalendar';
+import { DoctorAvailabilityHeatmap } from '../components/DoctorAvailabilityHeatmap';
+import { AppointmentBookingModal } from '../components/AppointmentBookingModal';
 import { jsPDF } from 'jspdf';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { 
@@ -51,6 +53,7 @@ export const PatientPortal: React.FC = () => {
     addNotification,
     rescheduleAppointment,
     updateAppointmentStatus,
+    doctors,
     t 
   } = useApp();
 
@@ -471,8 +474,9 @@ export const PatientPortal: React.FC = () => {
     setLoggedInPatient(null);
   };
 
-  const [activeTab, setActiveTab] = useState<'appointments' | 'documents' | 'samples' | 'orders' | 'insurance' | 'consultations' | 'profile' | 'analyzer'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'documents' | 'samples' | 'orders' | 'insurance' | 'consultations' | 'profile' | 'analyzer' | 'availability'>('appointments');
   const [appointmentsView, setAppointmentsView] = useState<'calendar' | 'list'>('calendar');
+  const [bookingDoctor, setBookingDoctor] = useState<Doctor | null>(null);
   
   const myPastConsultations = appointments.filter(
     apt => apt.mode === 'video' && 
@@ -783,6 +787,17 @@ export const PatientPortal: React.FC = () => {
         </button>
 
         <button
+          id="tab-availability"
+          onClick={() => setActiveTab('availability')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
+            activeTab === 'availability' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <TrendingUp className="w-4 h-4 text-emerald-500 animate-pulse" />
+          Doctor Availability Map
+        </button>
+
+        <button
           id="tab-documents"
           onClick={() => setActiveTab('documents')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
@@ -1020,6 +1035,16 @@ export const PatientPortal: React.FC = () => {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Tab Content: Doctor Availability Map */}
+      {activeTab === 'availability' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <DoctorAvailabilityHeatmap 
+            doctors={doctors}
+            onBookQuickSlot={(doc) => setBookingDoctor(doc)}
+          />
         </div>
       )}
 
@@ -1724,6 +1749,14 @@ export const PatientPortal: React.FC = () => {
         <VideoCallModal
           appointment={activeVideoCall}
           onClose={endVideoCall}
+        />
+      )}
+
+      {/* Quick Booking Modal */}
+      {bookingDoctor && (
+        <AppointmentBookingModal
+          doctor={bookingDoctor}
+          onClose={() => setBookingDoctor(null)}
         />
       )}
 
