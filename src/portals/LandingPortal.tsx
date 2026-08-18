@@ -195,17 +195,8 @@ export const LandingPortal: React.FC = () => {
           <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
             {/* Floating Icon Badge */}
             <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-blue-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-              <Calendar className="w-4.5 h-4.5" />
             </div>
 
-            <div>
-              <span className="text-[9px] uppercase font-extrabold tracking-wider text-blue-600 block mb-1">
-                Schedule & Meet
-              </span>
-              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-blue-600 transition-colors">
-                {t('bookAppointment')}
-              </h3>
-            </div>
             <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               Video Call or Clinic Visit
             </p>
@@ -234,17 +225,8 @@ export const LandingPortal: React.FC = () => {
           <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
             {/* Floating Icon Badge */}
             <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-red-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-              <Sparkles className="w-4.5 h-4.5" />
             </div>
 
-            <div>
-              <span className="text-[9px] uppercase font-extrabold tracking-wider text-red-600 block mb-1">
-                Clinical Intelligence
-              </span>
-              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-red-600 transition-colors">
-                {t('prescriptionAnalyzer')}
-              </h3>
-            </div>
             <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               AI record & PDF scanner
             </p>
@@ -270,17 +252,8 @@ export const LandingPortal: React.FC = () => {
           <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
             {/* Floating Icon Badge */}
             <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-emerald-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-              <TestTube2 className="w-4.5 h-4.5" />
             </div>
 
-            <div>
-              <span className="text-[9px] uppercase font-extrabold tracking-wider text-emerald-600 block mb-1">
-                Diagnostics
-              </span>
-              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-emerald-600 transition-colors">
-                {t('homeSample')}
-              </h3>
-            </div>
             <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               Doorstep phlebotomist
             </p>
@@ -306,17 +279,8 @@ export const LandingPortal: React.FC = () => {
           <div className="relative flex-1 bg-white p-4 pt-5 flex flex-col justify-between border-t border-slate-100">
             {/* Floating Icon Badge */}
             <div className="absolute -top-5 right-4 z-10 w-10 h-10 rounded-full bg-amber-600 text-white shadow-md border-2 border-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-              <Pill className="w-4.5 h-4.5" />
             </div>
 
-            <div>
-              <span className="text-[9px] uppercase font-extrabold tracking-wider text-amber-600 block mb-1">
-                E-Pharmacy
-              </span>
-              <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] leading-tight group-hover:text-amber-600 transition-colors">
-                {t('orderMedicines')}
-              </h3>
-            </div>
             <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal mt-1">
               From admin stores
             </p>

@@ -24,7 +24,9 @@ import {
   ShieldAlert,
   Plus,
   X,
-  AlertOctagon
+  AlertOctagon,
+  Camera,
+  Video
 } from 'lucide-react';
 
 // Smart Dynamic Mock Analysis Helper for off-grid/fallback resiliency
@@ -268,6 +270,70 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
   const [downloading, setDownloading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<PrescriptionAnalysis | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Camera capture systems
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  const startCamera = async () => {
+    setCameraError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+      setIsCameraActive(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err: any) {
+      console.error("Camera access failed, falling back", err);
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+        setIsCameraActive(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (fallbackErr: any) {
+        setCameraError("Unable to access your device camera. Please ensure permissions are granted.");
+      }
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current) {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        setSelectedFile({
+          name: `Camera_Capture_${new Date().toISOString().replace(/[:.]/g, '-')}.jpg`,
+          base64: dataUrl,
+          mimeType: 'image/jpeg'
+        });
+        stopCamera();
+        setErrorMsg(null);
+      }
+    }
+  };
 
   // Ongoing medications for automated drug interaction checker
   const [ongoingMeds, setOngoingMeds] = useState<string[]>(['Ibuprofen']);
@@ -799,6 +865,57 @@ export const AIPrescriptionAnalyzer: React.FC = () => {
                 </button>
               </div>
             )}
+
+            {/* Direct Device Camera Scanner Option */}
+            <div className="mt-4">
+              {isCameraActive ? (
+                <div className="space-y-3 bg-slate-900 p-4 rounded-2xl border border-slate-700 shadow-inner">
+                  <div className="relative overflow-hidden rounded-xl aspect-[4/3] bg-black flex items-center justify-center">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-red-600/90 text-[10px] font-extrabold uppercase tracking-widest text-white flex items-center gap-1.5 animate-pulse">
+                      <span className="h-2 w-2 rounded-full bg-white"></span>
+                      Live Lens Stream
+                    </div>
+                  </div>
+                  
+                  {cameraError && (
+                    <p className="text-[11px] text-red-400 font-bold px-1">{cameraError}</p>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={capturePhoto}
+                      className="flex-1 py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md"
+                    >
+                      <Camera className="w-4 h-4" />
+                      Capture Snapshot
+                    </button>
+                    <button
+                      type="button"
+                      onClick={stopCamera}
+                      className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={startCamera}
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
+                >
+                  <Camera className="w-4.5 h-4.5 text-blue-600" />
+                  Scan with Device Camera
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Text Area Input */}

@@ -569,7 +569,6 @@ export const Chatbot: React.FC = () => {
                     Medical Assistant
                   </span>
                 </h3>
-                <p className="text-[10px] text-slate-400 font-medium">Healthcare Concierge</p>
               </div>
             </div>
             

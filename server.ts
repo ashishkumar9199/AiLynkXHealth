@@ -327,7 +327,7 @@ Format your output STRICTLY as raw valid JSON without markdown code block format
       contents.push({ text: promptText });
 
       const response = await aiClient.models.generateContent({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-3.7-flash',
         contents: contents,
         config: {
           responseMimeType: 'application/json',

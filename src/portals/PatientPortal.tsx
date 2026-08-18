@@ -3,6 +3,8 @@ import { useApp } from '../context/AppContext';
 import { VideoCallModal } from '../components/VideoCallModal';
 import { Appointment } from '../types';
 import { InsuranceVerification } from '../components/InsuranceVerification';
+import { PatientProfileSection } from '../components/PatientProfileSection';
+import { AIPrescriptionAnalyzer } from '../components/AIPrescriptionAnalyzer';
 import { 
   Calendar, 
   Video, 
@@ -26,7 +28,8 @@ import {
   EyeOff,
   Mail,
   Check,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 
 export const PatientPortal: React.FC = () => {
@@ -218,7 +221,13 @@ export const PatientPortal: React.FC = () => {
     setLoggedInPatient(null);
   };
 
-  const [activeTab, setActiveTab] = useState<'appointments' | 'documents' | 'samples' | 'orders' | 'insurance'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'documents' | 'samples' | 'orders' | 'insurance' | 'consultations' | 'profile' | 'analyzer'>('appointments');
+  
+  const myPastConsultations = appointments.filter(
+    apt => apt.mode === 'video' && 
+    (apt.status === 'completed' || apt.status === 'cancelled' || new Date(apt.date) < new Date() || apt.id.includes('completed')) &&
+    apt.patientEmail.toLowerCase() === (loggedInPatient?.email || '').toLowerCase()
+  );
   const [docUploadModal, setDocUploadModal] = useState(false);
 
   const [docName, setDocName] = useState('');
@@ -534,6 +543,17 @@ export const PatientPortal: React.FC = () => {
         </button>
 
         <button
+          id="tab-analyzer"
+          onClick={() => setActiveTab('analyzer')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
+            activeTab === 'analyzer' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+          AI Prescription Analyzer
+        </button>
+
+        <button
           id="tab-samples"
           onClick={() => setActiveTab('samples')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
@@ -564,6 +584,28 @@ export const PatientPortal: React.FC = () => {
         >
           <ShieldCheck className="w-4 h-4" />
           Insurance Verification {loggedInPatient?.insurance?.status === 'verified' ? '(Verified)' : '(Unverified)'}
+        </button>
+
+        <button
+          id="tab-consultations"
+          onClick={() => setActiveTab('consultations')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
+            activeTab === 'consultations' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          Consultation History ({myPastConsultations.length})
+        </button>
+
+        <button
+          id="tab-profile"
+          onClick={() => setActiveTab('profile')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
+            activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <User className="w-4 h-4" />
+          Patient Profile
         </button>
       </div>
 
@@ -890,6 +932,200 @@ export const PatientPortal: React.FC = () => {
           }}
           addNotification={addNotification}
         />
+      )}
+
+      {/* Tab Content 6: Consultation History */}
+      {activeTab === 'consultations' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="font-extrabold text-slate-900 text-lg flex items-center gap-2">
+                <Video className="w-5 h-5 text-blue-600" />
+                Past Video Consultations
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Access records, clinical notes, and active digital prescriptions issued during your secure video calls.
+              </p>
+            </div>
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-2 text-center shrink-0">
+              <span className="block text-2xl font-black text-blue-700">{myPastConsultations.length}</span>
+              <span className="text-[10px] uppercase font-black tracking-wider text-blue-500">Total Visits</span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {myPastConsultations.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center max-w-lg mx-auto space-y-4">
+                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mx-auto text-slate-400">
+                  <Video className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-slate-900 text-sm">No past consultations found</h3>
+                  <p className="text-xs text-slate-500">You haven't completed any digital consultations on AilynkX Health yet.</p>
+                </div>
+                <button
+                  onClick={() => setPortal('landing')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition-all inline-flex items-center gap-1.5"
+                >
+                  Book Your First Consultation
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {myPastConsultations.map(consultation => (
+                  <div
+                    key={consultation.id}
+                    className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm hover:shadow-md transition-all space-y-6"
+                  >
+                    {/* Header Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                      <div className="flex items-center gap-2.5">
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider">
+                          ✓ Completed Consultation
+                        </span>
+                        <span className="text-xs font-mono font-bold text-slate-400">
+                          ID: {consultation.id}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4 text-slate-400" />
+                          {consultation.date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4 text-slate-400" />
+                          {consultation.timeSlot}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Doctor Details & Symptoms */}
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                      <div className="md:col-span-5 flex items-start gap-4">
+                        <img
+                          src={consultation.doctorAvatar}
+                          alt={consultation.doctorName}
+                          className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-100 shadow-sm"
+                        />
+                        <div className="space-y-1">
+                          <h4 className="font-extrabold text-slate-900 text-base">{consultation.doctorName}</h4>
+                          <p className="text-xs text-blue-700 font-extrabold">{consultation.doctorSpecialty}</p>
+                          <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                            <span>AilynkX Premium Partner</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-7 space-y-2">
+                        <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Reason for Consultation & Symptoms</h5>
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-700 leading-relaxed">
+                          {consultation.symptoms || 'No symptoms specified.'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Shared Post-Appointment Notes and E-Prescriptions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                      
+                      {/* Clinical Doctor Notes */}
+                      <div className="bg-blue-50/40 rounded-2xl p-5 border border-blue-100/60 space-y-3">
+                        <h5 className="text-[11px] font-black text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          Shared Doctor's Clinical Notes
+                        </h5>
+                        <p className="text-xs text-slate-700 leading-relaxed bg-white p-3.5 rounded-xl border border-blue-50/80 font-medium min-h-[90px]">
+                          {consultation.doctorNotes || 'No specific post-consultation notes were added by the physician.'}
+                        </p>
+                      </div>
+
+                      {/* E-Prescription Details */}
+                      <div className="bg-emerald-50/40 rounded-2xl p-5 border border-emerald-100/60 space-y-3">
+                        <h5 className="text-[11px] font-black text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                          <FileText className="w-4 h-4 text-emerald-600" />
+                          E-Prescription & Medicines
+                        </h5>
+                        <div className="bg-white p-3.5 rounded-xl border border-emerald-50/80 font-mono text-[11px] text-emerald-950 leading-relaxed min-h-[90px] whitespace-pre-line">
+                          {consultation.ePrescription || "No medication was prescribed during this consultation."}
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Shared Prescription and Lab Links */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100 bg-slate-50/50 p-4 rounded-2xl">
+                      <span className="text-xs text-slate-500 font-bold flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        Signed & Verified Electronically
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {consultation.prescriptionPdfName && (
+                          <a
+                            href={consultation.prescriptionPdfUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white text-slate-700 hover:text-slate-900 font-extrabold px-3.5 py-2 rounded-xl text-[11px] border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex items-center gap-1.5"
+                          >
+                            <Download className="w-3.5 h-3.5 text-blue-600" />
+                            <span>{consultation.prescriptionPdfName}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </a>
+                        )}
+                        {consultation.testPdfName && (
+                          <a
+                            href={consultation.testPdfUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white text-slate-700 hover:text-slate-900 font-extrabold px-3.5 py-2 rounded-xl text-[11px] border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex items-center gap-1.5"
+                          >
+                            <Download className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>{consultation.testPdfName}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tab Content 7: Patient Profile */}
+      {activeTab === 'profile' && (
+        <PatientProfileSection
+          patient={loggedInPatient}
+          onUpdatePatient={(updatedPatient) => {
+            setLoggedInPatient(updatedPatient);
+            localStorage.setItem('logged_in_patient', JSON.stringify(updatedPatient));
+            localStorage.setItem('patient_profile', JSON.stringify(updatedPatient));
+            
+            // Sync with aily_registered_patients database
+            const stored = localStorage.getItem('aily_registered_patients');
+            if (stored) {
+              try {
+                const patients = JSON.parse(stored);
+                const index = patients.findIndex((p: any) => p.email.toLowerCase() === updatedPatient.email.toLowerCase());
+                if (index !== -1) {
+                  patients[index] = updatedPatient;
+                  localStorage.setItem('aily_registered_patients', JSON.stringify(patients));
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            }
+          }}
+          addNotification={addNotification}
+        />
+      )}
+
+      {/* Tab Content: AI Prescription Analyzer */}
+      {activeTab === 'analyzer' && (
+        <AIPrescriptionAnalyzer />
       )}
 
       {/* Doc Upload Modal */}
