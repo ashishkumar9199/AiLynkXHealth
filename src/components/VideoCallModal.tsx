@@ -18,8 +18,20 @@ import {
   Maximize2,
   Loader2,
   ShieldCheck,
-  Camera
+  Camera,
+  ExternalLink,
+  LogOut,
+  Globe,
+  Heart
 } from 'lucide-react';
+import { 
+  initMeetAuth, 
+  googleSignInMeet, 
+  googleSignOutMeet, 
+  createMeetSpace, 
+  MeetSpace 
+} from '../utils/googleMeet';
+import { User } from 'firebase/auth';
 
 interface Props {
   appointment: Appointment;
@@ -31,7 +43,101 @@ export const VideoCallModal: React.FC<Props> = ({ appointment, onClose }) => {
 
   const [micOn, setMicOn] = useState(true);
   const [videoOn, setVideoOn] = useState(true);
-  const [activeTab, setActiveTab] = useState<'records' | 'chat' | 'eprescribe'>('records');
+  const [activeTab, setActiveTab] = useState<'records' | 'chat' | 'eprescribe' | 'meet'>('records');
+
+  // Google Meet API States
+  const [googleUser, setGoogleUser] = useState<User | null>(null);
+  const [googleToken, setGoogleToken] = useState<string | null>(null);
+  const [meetSpace, setMeetSpace] = useState<MeetSpace | null>(null);
+  const [isMeetLoading, setIsMeetLoading] = useState(false);
+  const [meetError, setMeetError] = useState<string | null>(null);
+
+  // Initialize Google Meet Auth state
+  useEffect(() => {
+    const unsubscribe = initMeetAuth(
+      (user, token) => {
+        setGoogleUser(user);
+        setGoogleToken(token);
+      },
+      () => {
+        setGoogleUser(null);
+        setGoogleToken(null);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  // Sign In with Google
+  const handleGoogleSignIn = async () => {
+    setIsMeetLoading(true);
+    setMeetError(null);
+    try {
+      const result = await googleSignInMeet();
+      if (result) {
+        setGoogleUser(result.user);
+        setGoogleToken(result.accessToken);
+        addNotification({
+          title: '🔑 Google Workspace Authorized',
+          message: `Successfully authenticated with ${result.user.email} for Google Meet integration.`,
+          type: 'system',
+          targetPortal: 'doctor'
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      setMeetError(err.message || 'Google authentication failed');
+    } finally {
+      setIsMeetLoading(false);
+    }
+  };
+
+  // Sign Out from Google Workspace
+  const handleGoogleSignOut = async () => {
+    try {
+      await googleSignOutMeet();
+      setGoogleUser(null);
+      setGoogleToken(null);
+      setMeetSpace(null);
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+  // Generate Google Meet space
+  const handleGenerateMeetSpace = async () => {
+    if (!googleToken) {
+      setMeetError('Please sign in with Google Workspace first.');
+      return;
+    }
+    setIsMeetLoading(true);
+    setMeetError(null);
+    try {
+      const space = await createMeetSpace(googleToken);
+      setMeetSpace(space);
+      
+      // Auto-post to chat
+      setChatMessages(prev => [
+        ...prev,
+        {
+          sender: 'System',
+          text: `🎥 Google Meet Consultation Room created: ${space.meetingUri}. Link shared successfully with Doctor & Patient.`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+
+      addNotification({
+        title: '🎥 Google Meet Room Created',
+        message: `Google Meet Room ${space.meetingCode} is now active for Appointment #${appointment.id}.`,
+        type: 'appointment',
+        targetPortal: 'patient'
+      });
+    } catch (err: any) {
+      console.error(err);
+      setMeetError(err.message || 'Failed to generate Google Meet Space');
+    } finally {
+      setIsMeetLoading(false);
+    }
+  };
 
   // Real-time camera integration states
   const [waitingState, setWaitingState] = useState<'lobby' | 'call'>('lobby');
@@ -416,11 +522,11 @@ export const VideoCallModal: React.FC<Props> = ({ appointment, onClose }) => {
         <div className="w-full lg:w-96 bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-800 flex flex-col">
           
           {/* Side Tabs */}
-          <div className="p-2 bg-slate-950 border-b border-slate-800 grid grid-cols-3 gap-1">
+          <div className="p-2 bg-slate-950 border-b border-slate-800 grid grid-cols-4 gap-1">
             <button
               id="tab-records-pdf"
               onClick={() => setActiveTab('records')}
-              className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all ${
+              className={`py-2 px-1 rounded-xl text-[10px] font-bold transition-all text-center ${
                 activeTab === 'records'
                   ? 'bg-blue-600 text-white shadow'
                   : 'text-slate-400 hover:text-slate-200'
@@ -431,7 +537,7 @@ export const VideoCallModal: React.FC<Props> = ({ appointment, onClose }) => {
             <button
               id="tab-consult-chat"
               onClick={() => setActiveTab('chat')}
-              className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all ${
+              className={`py-2 px-1 rounded-xl text-[10px] font-bold transition-all text-center ${
                 activeTab === 'chat'
                   ? 'bg-blue-600 text-white shadow'
                   : 'text-slate-400 hover:text-slate-200'
@@ -442,13 +548,25 @@ export const VideoCallModal: React.FC<Props> = ({ appointment, onClose }) => {
             <button
               id="tab-eprescribe"
               onClick={() => setActiveTab('eprescribe')}
-              className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all ${
+              className={`py-2 px-1 rounded-xl text-[10px] font-bold transition-all text-center ${
                 activeTab === 'eprescribe'
                   ? 'bg-blue-600 text-white shadow'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               E-Rx Issuer
+            </button>
+            <button
+              id="tab-meet"
+              onClick={() => setActiveTab('meet')}
+              className={`py-2 px-1 rounded-xl text-[10px] font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                activeTab === 'meet'
+                  ? 'bg-emerald-600 text-white shadow'
+                  : 'text-slate-400 hover:text-emerald-400'
+              }`}
+            >
+              <Globe className="w-3 h-3" />
+              <span>G-Meet</span>
             </button>
           </div>
 
@@ -589,6 +707,152 @@ export const VideoCallModal: React.FC<Props> = ({ appointment, onClose }) => {
                   Issue Digital E-Prescription
                 </button>
               )}
+            </div>
+          )}
+
+          {/* Tab 4: Google Meet Integration */}
+          {activeTab === 'meet' && (
+            <div className="p-4 flex-1 overflow-y-auto space-y-4 text-xs text-slate-300">
+              <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-1">
+                <span className="text-[10px] uppercase font-black text-emerald-400 block tracking-wider">
+                  Google Workspace API
+                </span>
+                <h4 className="text-white font-extrabold text-sm">Google Meet Integration</h4>
+                <p className="text-slate-400 text-[11px] leading-normal">
+                  Generate secure, official Google Meet spaces for real-time video consultations directly backed by Google Workspace.
+                </p>
+              </div>
+
+              {meetError && (
+                <div className="p-3 bg-red-950/80 border border-red-800 text-red-200 rounded-xl font-bold flex items-start gap-2 animate-in slide-in-from-top-1">
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                  <span>{meetError}</span>
+                </div>
+              )}
+
+              {!googleUser ? (
+                <div className="bg-slate-950/40 border border-slate-800 rounded-2xl p-4.5 text-center space-y-4">
+                  <div className="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                    <Globe className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-extrabold text-white text-xs">Authorize Google Workspace</p>
+                    <p className="text-[10px] text-slate-400 max-w-xs mx-auto leading-relaxed">
+                      Connect your Google account with meetings permission to generate genuine, secure meeting invite URLs.
+                    </p>
+                  </div>
+
+                  {/* Styled GSI button */}
+                  <button
+                    onClick={handleGoogleSignIn}
+                    disabled={isMeetLoading}
+                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-100 text-slate-900 font-extrabold rounded-xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {isMeetLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-700" />
+                    ) : (
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                      </svg>
+                    )}
+                    <span>Sign in with Google</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Authorized User Profile Info Card */}
+                  <div className="bg-slate-950/40 border border-slate-800 rounded-2xl p-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {googleUser.photoURL ? (
+                        <img 
+                          src={googleUser.photoURL} 
+                          alt="Google User" 
+                          referrerPolicy="no-referrer"
+                          className="w-8 h-8 rounded-full border border-slate-700" 
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-blue-600/10 text-blue-400 rounded-full flex items-center justify-center font-bold">
+                          {googleUser.email?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <span className="font-bold text-white block text-[11px] truncate">
+                          {googleUser.displayName || 'Google Workspace User'}
+                        </span>
+                        <span className="text-[10px] text-slate-400 block truncate">
+                          {googleUser.email}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleGoogleSignOut}
+                      className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-850 rounded-lg transition-colors"
+                      title="Disconnect Account"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Create Room Actions */}
+                  {!meetSpace ? (
+                    <button
+                      onClick={handleGenerateMeetSpace}
+                      disabled={isMeetLoading}
+                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      {isMeetLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Globe className="w-4 h-4 text-emerald-200" />
+                      )}
+                      <span>Create Google Meet Space</span>
+                    </button>
+                  ) : (
+                    <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 space-y-4 animate-in zoom-in-95 duration-150">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Space Created
+                          </span>
+                          <span className="font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">
+                            {meetSpace.meetingCode}
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-slate-900 border border-slate-850 rounded-xl space-y-1 font-mono text-[10px] break-all select-all">
+                          <p className="text-slate-400">Meeting Room Invite URL:</p>
+                          <p className="text-white font-bold underline hover:text-blue-400 cursor-pointer">
+                            {meetSpace.meetingUri}
+                          </p>
+                        </div>
+                      </div>
+
+                      <a
+                        href={meetSpace.meetingUri}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-500/10 flex items-center justify-center gap-2 transition-all"
+                      >
+                        <ExternalLink className="w-4 h-4 text-blue-200" />
+                        <span>Launch Google Meet Room</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="p-3.5 bg-emerald-950/40 border border-emerald-900/40 rounded-xl space-y-1 text-[11px] leading-relaxed text-emerald-300">
+                <p className="font-bold flex items-center gap-1">
+                  <Heart className="w-3.5 h-3.5 fill-emerald-400/20" /> Lifetime Free Workspace Access
+                </p>
+                <p className="text-[10px] opacity-90">
+                  Google Meet space creation and attendee interactions are 100% free of charge under standard individual Google Developer accounts. No additional premium licensing is required.
+                </p>
+              </div>
             </div>
           )}
 
