@@ -126,14 +126,8 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
     setIsSubmitting(true);
 
     try {
-      // Insurance Verification flow before booking
-      if (insuranceStatus !== 'verified') {
-        if (!insPolicyNumber.trim()) {
-          alert("Health Insurance details must be securely entered and verified before booking appointments. Please enter your Policy ID.");
-          setIsSubmitting(false);
-          return;
-        }
-
+      // Insurance Verification flow before booking - only run if policy ID is supplied
+      if (insuranceStatus !== 'verified' && insPolicyNumber.trim()) {
         setIsVerifyingInsurance(true);
         setInsVerifyStepMessage("Establishing secure clearinghouse socket...");
         await new Promise(resolve => setTimeout(resolve, 700));
@@ -467,12 +461,12 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
                 </div>
               </div>
 
-              {/* 4. Health Insurance Verification (Required) */}
+              {/* 4. Health Insurance Verification (Optional) */}
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-blue-600" />
-                    4. Secure Health Insurance Verification *
+                    4. Health Insurance Verification (Optional)
                   </h4>
                   {insuranceStatus === 'verified' && (
                     <span className="text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full tracking-wider">
@@ -516,17 +510,17 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
                   </div>
                 ) : (
                   <div className="space-y-3 pt-1 animate-in fade-in duration-200">
-                    <div className="bg-amber-50/70 border border-amber-200 p-3 rounded-xl flex items-start gap-2.5">
-                      <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <p className="text-[11px] text-amber-900 leading-normal font-medium">
-                        <strong>Insurance details required:</strong> To complete booking and calculate active co-payments, enter your health policy ID and carrier below. Information is validated instantly.
+                    <div className="bg-slate-100 border border-slate-200 p-3 rounded-xl flex items-start gap-2.5">
+                      <ShieldCheck className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                      <p className="text-[11px] text-slate-700 leading-normal font-medium">
+                        <strong>Optional insurance details:</strong> Enter your health policy ID and carrier below if you would like us to verify and apply co-payment coverage. You can also leave this empty to proceed as a self-pay patient.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                          Insurance Carrier *
+                          Insurance Carrier (Optional)
                         </label>
                         <select
                           id="booking-ins-provider"
@@ -547,7 +541,7 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
 
                       <div>
                         <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                          Policy ID / Member ID *
+                          Policy ID / Member ID (Optional)
                         </label>
                         <input
                           type="text"
@@ -556,7 +550,6 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
                           onChange={e => setInsPolicyNumber(e.target.value)}
                           placeholder="e.g. BCB-9921448"
                           className="w-full p-2.5 rounded-lg border border-slate-300 text-xs text-slate-800 font-mono font-bold"
-                          required
                         />
                       </div>
                     </div>
@@ -564,7 +557,7 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                          Primary Policy Holder *
+                          Primary Policy Holder (Optional)
                         </label>
                         <input
                           type="text"
@@ -573,13 +566,12 @@ export const AppointmentBookingModal: React.FC<Props> = ({ doctor, onClose }) =>
                           onChange={e => setInsHolderName(e.target.value)}
                           placeholder="Name on policy card"
                           className="w-full p-2.5 rounded-lg border border-slate-300 text-xs text-slate-800 font-semibold"
-                          required
                         />
                       </div>
 
                       <div>
                         <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                          Relationship
+                          Relationship (Optional)
                         </label>
                         <select
                           id="booking-ins-relation"
